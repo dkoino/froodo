@@ -13,31 +13,32 @@ public function up(): void
     {
         Schema::create('foods', function (Blueprint $table) {
             $table->id();
-            // Link to Brand-Table 
-            $table->foreignId('brand_id')->nullable()->constrained()->nullOnDelete(); 
-            
+            $table->foreignId('brand_id')->nullable();
             $table->string('name');
             $table->string('variant')->nullable();
-            $table->string('barcode')->nullable();
             
-            // Nutritional Values per 100g/ml
             $table->integer('calories_p100');
             $table->decimal('fat_p100', 8, 2);
-            $table->decimal('sat_fat_p100', 8, 2);
+            $table->decimal('sat_fat_p100', 8, 2)->nullable();
             $table->decimal('carbs_p100', 8, 2);
-            $table->decimal('sugar_p100', 8, 2);
-            $table->decimal('fiber_p100', 8, 2);
+            $table->decimal('sugar_p100', 8, 2)->nullable();
+            $table->decimal('fiber_p100', 8, 2)->nullable();
             $table->decimal('protein_p100', 8, 2);
-            $table->decimal('salt_p100', 8, 2);
+            $table->decimal('salt_p100', 8, 2)->nullable();
             
-            // Meta-Data
-            $table->string('base_unit');
-            $table->integer('quantity_total');
+            $table->enum('measurement_unit', ['g', 'ml']);
+            $table->integer('total_amount');
+
+            $table->string('portion_label')->nullable();
+            $table->decimal('portion_amount', 8, 2)->nullable();
+
             $table->decimal('price', 8, 2)->nullable();
-            $table->string('source');
-            $table->text('notes')->nullable();
-            $table->json('photos')->nullable();
+            $table->string('barcode')->nullable();
             
+            $table->enum('source_type', ['Verpackung', 'Herstellerseite', 'Datenbank', 'Sonstiges']);
+            $table->string('source_url')->nullable();
+            
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

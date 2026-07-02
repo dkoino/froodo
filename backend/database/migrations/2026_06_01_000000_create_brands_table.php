@@ -15,6 +15,7 @@ public function up(): void
             $table->id();
             $table->string('name');
             $table->string('store')->nullable();
+            $table->string('logo_path')->nullable();
             $table->timestamps();
         });
     }

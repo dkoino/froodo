@@ -1,0 +1,15 @@
+TODO:
+
+- Suche für Lebensmittel erstellen 
+    Soll instant erfolgen und ein Dropdown-Menu erzeugen
+
+- Styling
+- Zustände hinzufügen
+        produkt
+    ├── kategorie_id      (Baum-Pfad, eine Hauptkategorie)
+    ├── zustand           (roh / gekocht / frisch / TK / konserviert / getrocknet / NULL)
+    └── ...
+
+    produkt_tags (n:m)
+    ├── produkt_id
+    └── tag               ("Ananas", "Tropisch", "vegan", ...)
