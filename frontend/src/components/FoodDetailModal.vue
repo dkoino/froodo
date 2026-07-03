@@ -1,7 +1,7 @@
 <template>
   <div v-if="isOpen && food" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-      
+
       <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50 sticky top-0 z-10">
         <div>
           <h3 class="text-xl font-bold text-gray-800">{{ food.name }}</h3>
@@ -35,7 +35,8 @@
             </div>
 
             <div>
-              <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider">Nährwerte pro 100 {{ food.measurement_unit }}</h4>
+              <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider">Nährwerte pro 100 {{
+                food.measurement_unit }}</h4>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div class="bg-blue-50/50 p-3 rounded border border-blue-100/50 text-center">
                   <span class="block text-xs text-blue-600 font-medium">Kalorien</span>
@@ -55,10 +56,13 @@
                 </div>
               </div>
 
-              <div class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-gray-500 bg-gray-50 p-3 rounded border border-gray-100">
-                <div>davon gesättigt: <span class="font-semibold text-gray-700">{{ food.sat_fat_p100 || '0' }} g</span></div>
+              <div
+                class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-gray-500 bg-gray-50 p-3 rounded border border-gray-100">
+                <div>davon gesättigt: <span class="font-semibold text-gray-700">{{ food.sat_fat_p100 || '0' }} g</span>
+                </div>
                 <div>davon Zucker: <span class="font-semibold text-gray-700">{{ food.sugar_p100 || '0' }} g</span></div>
-                <div>Ballaststoffe: <span class="font-semibold text-gray-700">{{ food.fiber_p100 || '0' }} g</span></div>
+                <div>Ballaststoffe: <span class="font-semibold text-gray-700">{{ food.fiber_p100 || '0' }} g</span>
+                </div>
                 <div>Salz: <span class="font-semibold text-gray-700">{{ food.salt_p100 || '0' }} g</span></div>
               </div>
             </div>
@@ -73,8 +77,10 @@
             <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Bilder-Galerie</h4>
             <div v-if="food.photos && food.photos.length > 0" class="space-y-3">
               <div v-for="photo in food.photos" :key="photo.id" class="border border-gray-200 rounded p-2 bg-white">
-                <img :src="`http://localhost:8000/storage/${photo.file_path}`" class="w-full h-32 object-contain rounded bg-gray-50">
-                <span class="block text-center text-xs font-semibold text-gray-500 uppercase mt-2 bg-gray-100 py-1 rounded">
+                <img :src="`http://localhost:8000/storage/${photo.file_path}`"
+                  class="w-full h-32 object-contain rounded bg-gray-50">
+                <span
+                  class="block text-center text-xs font-semibold text-gray-500 uppercase mt-2 bg-gray-100 py-1 rounded">
                   {{ translateType(photo.type) }}
                 </span>
               </div>
@@ -86,9 +92,14 @@
         </div>
       </div>
 
-      <div class="px-6 py-4 border-t border-gray-100 flex justify-end bg-gray-50 sticky bottom-0">
-        <button @click="$emit('close')" class="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-md text-sm shadow-sm transition">
+      <div class="px-6 py-4 border-t border-gray-100 flex justify-end space-x-3 bg-gray-50 sticky bottom-0">
+        <button @click="$emit('close')"
+          class="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md text-sm shadow-sm transition">
           Schließen
+        </button>
+        <button @click="goToEdit"
+          class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md text-sm shadow-sm transition">
+          Bearbeiten
         </button>
       </div>
 
@@ -97,12 +108,15 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { useRouter } from 'vue-router'
+
+const props = defineProps<{
   isOpen: boolean
   food: any
 }>()
 
-defineEmits(['close'])
+const emit = defineEmits(['close'])
+const router = useRouter()
 
 const translateType = (type: string) => {
   const mapping: Record<string, string> = {
@@ -114,5 +128,10 @@ const translateType = (type: string) => {
     general: 'Allgemein'
   }
   return mapping[type] || type
+}
+
+const goToEdit = () => {
+  emit('close')
+  router.push(`/foods/${props.food.id}/edit`)
 }
 </script>
