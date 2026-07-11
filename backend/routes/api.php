@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\Api\FoodImportExportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/foods', [FoodController::class, 'index']);
@@ -12,3 +13,7 @@ Route::delete('/foods/{food}', [FoodController::class, 'destroy']);
 
 Route::get('/brands', [BrandController::class, 'index']);
 Route::post('/brands', [BrandController::class, 'store']);
+
+# IMPORT/EXPORT 
+Route::get('/export/foods', [FoodImportExportController::class, 'export']);
+Route::post('/import/foods', [FoodImportExportController::class, 'import']);

@@ -10,12 +10,15 @@ class Food extends Model
     use HasFactory;
 
     protected $table = 'foods';
-    
+
     protected $fillable = [
-        'brand_id',
         'name',
         'variant',
-        'barcode',
+        'brand_id',
+        'main_category_id',
+        'sub_category_id',
+        'meat_type',
+        'state',
         'calories_p100',
         'fat_p100',
         'sat_fat_p100',
@@ -24,15 +27,27 @@ class Food extends Model
         'fiber_p100',
         'protein_p100',
         'salt_p100',
-        'measurement_unit',
         'total_amount',
-        'portion_label',
+        'measurement_unit',
         'portion_amount',
+        'portion_label',
+        'portion_descr',
+        'barcode',
         'price',
-        'source_type',
-        'source_url',
         'notes',
+        'source_type',
+        'source_url'
     ];
+
+    public function mainCategory()
+    {
+        return $this->belongsTo(MainCategory::class);
+    }
+
+    public function subCategory()
+    {
+        return $this->belongsTo(SubCategory::class);
+    }
 
     public function brand()
     {

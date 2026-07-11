@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class MainCategory extends Model
+{
+    protected $fillable = ['name'];
+
+    public function subCategories()
+    {
+        return $this->hasMany(SubCategory::class);
+    }
+
+    public function foods()
+    {
+        return $this->hasMany(Food::class);
+    }
+}

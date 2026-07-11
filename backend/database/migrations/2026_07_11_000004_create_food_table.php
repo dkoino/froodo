@@ -6,17 +6,31 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-public function up(): void
+    public function up(): void
     {
         Schema::create('foods', function (Blueprint $table) {
             $table->id();
             $table->foreignId('brand_id')->nullable();
             $table->string('name');
             $table->string('variant')->nullable();
-            
+
+            $table->foreignId('main_category_id')->nullable()->constrained('main_categories')->nullOnDelete();
+            $table->foreignId('sub_category_id')->nullable()->constrained('sub_categories')->nullOnDelete();
+            $table->enum('meat_type', [
+                'Schwein',
+                'Hähnchen',
+                'Pute',
+                'Ente',
+                'Rind',
+                'Fisch',
+                'Gemischt',
+                'Anderes',
+                'Nein',
+                'Unbekannt'
+            ])->default('Unbekannt');
+            $table->string('state')->nullable();
+            // -----------------------------------------
+
             $table->integer('calories_p100');
             $table->decimal('fat_p100', 8, 2);
             $table->decimal('sat_fat_p100', 8, 2)->nullable();
@@ -25,7 +39,7 @@ public function up(): void
             $table->decimal('fiber_p100', 8, 2)->nullable();
             $table->decimal('protein_p100', 8, 2);
             $table->decimal('salt_p100', 8, 2)->nullable();
-            
+
             $table->enum('measurement_unit', ['g', 'ml']);
             $table->integer('total_amount');
 
@@ -34,20 +48,17 @@ public function up(): void
 
             $table->decimal('price', 8, 2)->nullable();
             $table->string('barcode')->nullable();
-            
+
             $table->enum('source_type', ['Verpackung', 'Herstellerseite', 'Datenbank', 'Sonstiges']);
             $table->string('source_url')->nullable();
-            
+
             $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('food');
+        Schema::dropIfExists('foods');
     }
 };

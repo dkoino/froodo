@@ -3,9 +3,6 @@ TODO:
 - Suche für Lebensmittel erstellen 
     Soll instant erfolgen und ein Dropdown-Menu erzeugen
 
-- Styling
-    Nährwertetabelle in der Lebensmittelübersicht
-
 - Tags / Kategorien hinzufügen (tk, fleisch, gemüse...)
 
 - Dynamische Farbanzeige, wenn Nährwerte hoch / wenig sind pro 100g

@@ -45,62 +45,6 @@
         </div>
 
         <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold mb-4 border-b border-gray-200 pb-2 text-gray-700">Produktbilder</h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div v-for="(photo, index) in existingPhotos" :key="'ex-' + photo.id"
-                    class="relative border border-blue-200 rounded p-3 bg-blue-50/30 flex flex-col items-center group">
-                    <span
-                        class="absolute top-1 left-1 bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Gespeichert</span>
-                    <button type="button" @click="removeExistingImage(index, photo.id)"
-                        class="absolute top-1 right-1 bg-red-100 text-red-600 rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-200 transition-colors"
-                        title="Bild löschen">
-                        &times;
-                    </button>
-                    <img :src="`http://localhost:8000/storage/${photo.file_path}`"
-                        class="w-full h-28 object-contain rounded mb-3 mt-3">
-                    <select v-model="photo.type"
-                        class="block w-full text-xs border border-gray-300 rounded p-1.5 bg-white focus:ring-0 focus:border-gray-400">
-                        <option value="front">Vorderseite</option>
-                        <option value="product">Produktbild</option>
-                        <option value="nutrition">Nährwerte</option>
-                        <option value="ingredients">Zutaten</option>
-                        <option value="barcode">Barcode</option>
-                        <option value="general">Allgemein</option>
-                    </select>
-                </div>
-
-                <div v-for="(src, index) in newImagePreviews" :key="'new-' + index"
-                    class="relative border border-gray-200 rounded p-3 bg-white flex flex-col items-center group">
-                    <span
-                        class="absolute top-1 left-1 bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Neu</span>
-                    <button type="button" @click="removeNewImage(index)"
-                        class="absolute top-1 right-1 bg-red-100 text-red-600 rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-red-200">
-                        &times;
-                    </button>
-                    <img :src="src" class="w-full h-28 object-contain rounded mb-3 mt-3">
-                    <select v-model="newPhotoTypes[index]"
-                        class="block w-full text-xs border border-gray-300 rounded p-1.5 bg-white focus:ring-0 focus:border-gray-400">
-                        <option value="front">Vorderseite</option>
-                        <option value="product">Produktbild</option>
-                        <option value="nutrition">Nährwerte</option>
-                        <option value="ingredients">Zutaten</option>
-                        <option value="barcode">Barcode</option>
-                        <option value="general">Allgemein</option>
-                    </select>
-                </div>
-
-                <label
-                    class="border-2 border-dashed border-gray-300 rounded p-3 bg-white hover:bg-gray-100 hover:border-gray-400 transition-colors flex flex-col items-center justify-center cursor-pointer min-h-[170px]">
-                    <input type="file" accept="image/*" @change="handleSingleFileChange" class="hidden">
-                    <svg class="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span class="text-xs font-medium text-gray-500">Bild hinzufügen</span>
-                </label>
-            </div>
-        </div>
-
-        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
             <h3 class="text-lg font-semibold mb-4 border-b border-gray-200 pb-2 text-gray-700">Menge & Portion</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
                 <div>
@@ -218,6 +162,62 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">Notizen</label>
                 <textarea v-model="form.notes" rows="3"
                     class="block w-full border border-gray-300 rounded-md p-2.5 focus:ring-0 focus:border-gray-400 bg-white"></textarea>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
+            <h3 class="text-lg font-semibold mb-4 border-b border-gray-200 pb-2 text-gray-700">Produktbilder</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div v-for="(photo, index) in existingPhotos" :key="'ex-' + photo.id"
+                    class="relative border border-blue-200 rounded p-3 bg-blue-50/30 flex flex-col items-center group">
+                    <span
+                        class="absolute top-1 left-1 bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Gespeichert</span>
+                    <button type="button" @click="removeExistingImage(index, photo.id)"
+                        class="absolute top-1 right-1 bg-red-100 text-red-600 rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-200 transition-colors"
+                        title="Bild löschen">
+                        &times;
+                    </button>
+                    <img :src="`http://localhost:8000/storage/${photo.file_path}`"
+                        class="w-full h-28 object-contain rounded mb-3 mt-3">
+                    <select v-model="photo.type"
+                        class="block w-full text-xs border border-gray-300 rounded p-1.5 bg-white focus:ring-0 focus:border-gray-400">
+                        <option value="front">Vorderseite</option>
+                        <option value="product">Produktbild</option>
+                        <option value="nutrition">Nährwerte</option>
+                        <option value="ingredients">Zutaten</option>
+                        <option value="barcode">Barcode</option>
+                        <option value="general">Allgemein</option>
+                    </select>
+                </div>
+
+                <div v-for="(src, index) in newImagePreviews" :key="'new-' + index"
+                    class="relative border border-gray-200 rounded p-3 bg-white flex flex-col items-center group">
+                    <span
+                        class="absolute top-1 left-1 bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Neu</span>
+                    <button type="button" @click="removeNewImage(index)"
+                        class="absolute top-1 right-1 bg-red-100 text-red-600 rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-red-200">
+                        &times;
+                    </button>
+                    <img :src="src" class="w-full h-28 object-contain rounded mb-3 mt-3">
+                    <select v-model="newPhotoTypes[index]"
+                        class="block w-full text-xs border border-gray-300 rounded p-1.5 bg-white focus:ring-0 focus:border-gray-400">
+                        <option value="front">Vorderseite</option>
+                        <option value="product">Produktbild</option>
+                        <option value="nutrition">Nährwerte</option>
+                        <option value="ingredients">Zutaten</option>
+                        <option value="barcode">Barcode</option>
+                        <option value="general">Allgemein</option>
+                    </select>
+                </div>
+
+                <label
+                    class="border-2 border-dashed border-gray-300 rounded p-3 bg-white hover:bg-gray-100 hover:border-gray-400 transition-colors flex flex-col items-center justify-center cursor-pointer min-h-[170px]">
+                    <input type="file" accept="image/*" @change="handleSingleFileChange" class="hidden">
+                    <svg class="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span class="text-xs font-medium text-gray-500">Bild hinzufügen</span>
+                </label>
             </div>
         </div>
 

@@ -7,27 +7,29 @@
             <div class="flex-shrink-0 flex items-center">
               <span class="text-2xl font-bold text-blue-600 tracking-tight hover:text-blue-400">Froodo</span>
             </div>
-            
+
             <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
-              <RouterLink 
-                to="/foods" 
+              <RouterLink to="/foods"
                 class="inline-flex items-center px-1 pt-1 border-b-2 font-medium text-sm transition-colors"
-                active-class="border-blue-500 text-gray-900"
-                exact-active-class="border-blue-500 text-gray-900"
-                :class="$route.path === '/foods' ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
-              >
+                active-class="border-blue-500 text-gray-900" exact-active-class="border-blue-500 text-gray-900"
+                :class="$route.path === '/foods' ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
                 Meine Lebensmittel
               </RouterLink>
 
-              <RouterLink 
-                to="/foods/create" 
+              <RouterLink to="/foods/create"
                 class="inline-flex items-center px-1 pt-1 border-b-2 font-medium text-sm transition-colors"
-                active-class="border-blue-500 text-gray-900"
-                exact-active-class="border-blue-500 text-gray-900"
-                :class="$route.path === '/foods/create' ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
-              >
+                active-class="border-blue-500 text-gray-900" exact-active-class="border-blue-500 text-gray-900"
+                :class="$route.path === '/foods/create' ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
                 Hinzufügen
               </RouterLink>
+
+              <RouterLink to="/import-export"
+                class="inline-flex items-center px-1 pt-1 border-b-2 font-medium text-sm transition-colors"
+                active-class="border-blue-500 text-gray-900" exact-active-class="border-blue-500 text-gray-900"
+                :class="$route.path === '/import-export' ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
+                Import/Export
+              </RouterLink>
+
             </div>
           </div>
         </div>

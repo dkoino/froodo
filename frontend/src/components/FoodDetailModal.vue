@@ -35,35 +35,54 @@
             </div>
 
             <div>
-              <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider">Nährwerte pro 100 {{
-                food.measurement_unit }}</h4>
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="bg-blue-50/50 p-3 rounded border border-blue-100/50 text-center">
-                  <span class="block text-xs text-blue-600 font-medium">Kalorien</span>
-                  <span class="text-lg font-bold text-blue-900">{{ food.calories_p100 }} kcal</span>
-                </div>
-                <div class="bg-amber-50/50 p-3 rounded border border-amber-100/50 text-center">
-                  <span class="block text-xs text-amber-600 font-medium">Fett</span>
-                  <span class="text-lg font-bold text-amber-900">{{ food.fat_p100 }} g</span>
-                </div>
-                <div class="bg-purple-50/50 p-3 rounded border border-purple-100/50 text-center">
-                  <span class="block text-xs text-purple-600 font-medium">Kohlenhydrate</span>
-                  <span class="text-lg font-bold text-purple-900">{{ food.carbs_p100 }} g</span>
-                </div>
-                <div class="bg-emerald-50/50 p-3 rounded border border-emerald-100/50 text-center">
-                  <span class="block text-xs text-emerald-600 font-medium">Protein</span>
-                  <span class="text-lg font-bold text-emerald-900">{{ food.protein_p100 }} g</span>
-                </div>
-              </div>
+              <h3 class="text-sm font-bold tracking-wider text-gray-700 uppercase mb-4">
+                Nährwerte pro 100 {{ food?.measurement_unit || 'g' }}
+              </h3>
 
-              <div
-                class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-gray-500 bg-gray-50 p-3 rounded border border-gray-100">
-                <div>davon gesättigt: <span class="font-semibold text-gray-700">{{ food.sat_fat_p100 || '0' }} g</span>
-                </div>
-                <div>davon Zucker: <span class="font-semibold text-gray-700">{{ food.sugar_p100 || '0' }} g</span></div>
-                <div>Ballaststoffe: <span class="font-semibold text-gray-700">{{ food.fiber_p100 || '0' }} g</span>
-                </div>
-                <div>Salz: <span class="font-semibold text-gray-700">{{ food.salt_p100 || '0' }} g</span></div>
+              <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+                <table class="min-w-full text-sm text-left">
+                  <tbody class="divide-y divide-gray-100">
+
+                    <tr class="bg-blue-50">
+                      <th class="px-4 py-2 font-bold text-blue-900">Kalorien</th>
+                      <td class="px-4 py-2 text-right font-bold text-blue-900">{{ food?.calories_p100 ?? '-' }} kcal
+                      </td>
+                    </tr>
+
+                    <tr class="bg-amber-100">
+                      <th class="px-4 py-2 font-medium text-amber-900">Fett</th>
+                      <td class="px-4 py-2 text-right font-bold text-amber-900">{{ food?.fat_p100 ?? '-' }} g</td>
+                    </tr>
+                    <tr class="bg-amber-50/50">
+                      <th class="px-4 py-1 font-normal text-amber-700/80 pl-8">davon gesättigte Fettsäuren</th>
+                      <td class="px-4 py-1 text-right text-amber-700/80">{{ food?.sat_fat_p100 ?? '-' }} g</td>
+                    </tr>
+
+                    <tr class="bg-purple-100">
+                      <th class="px-4 py-2 font-medium text-purple-900">Kohlenhydrate</th>
+                      <td class="px-4 py-2 text-right font-bold text-purple-900">{{ food?.carbs_p100 ?? '-' }} g</td>
+                    </tr>
+                    <tr class="bg-purple-50/50">
+                      <th class="px-4 py-1 font-normal text-purple-700/80 pl-8">davon Zucker</th>
+                      <td class="px-4 py-1 text-right text-purple-700/80">{{ food?.sugar_p100 ?? '-' }} g</td>
+                    </tr>
+
+                    <tr class="bg-green-50">
+                      <th class="px-4 py-2 font-medium text-green-900">Protein</th>
+                      <td class="px-4 py-2 text-right font-bold text-green-900">{{ food?.protein_p100 ?? '-' }} g</td>
+                    </tr>
+
+                    <tr class="bg-gray-50">
+                      <th class="px-4 py-2 font-medium text-gray-700">Ballaststoffe</th>
+                      <td class="px-4 py-2 text-right text-gray-700">{{ food?.fiber_p100 ?? '-' }} g</td>
+                    </tr>
+                    <tr class="bg-white">
+                      <th class="px-4 py-2 font-medium text-gray-700">Salz</th>
+                      <td class="px-4 py-2 text-right text-gray-700">{{ food?.salt_p100 ?? '-' }} g</td>
+                    </tr>
+
+                  </tbody>
+                </table>
               </div>
             </div>
 
@@ -93,13 +112,13 @@
       </div>
 
       <div class="px-6 py-4 border-t border-gray-100 flex justify-end space-x-3 bg-gray-50 sticky bottom-0">
-        <button @click="$emit('close')"
-          class="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md text-sm shadow-sm transition">
-          Schließen
-        </button>
         <button @click="goToEdit"
           class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md text-sm shadow-sm transition">
           Bearbeiten
+        </button>
+        <button @click="$emit('close')"
+          class="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md text-sm shadow-sm transition">
+          Schließen
         </button>
       </div>
 

@@ -33,7 +33,7 @@ class FoodController extends Controller
             'protein_p100' => 'required|numeric',
             'salt_p100' => 'nullable|numeric',
             'price' => 'nullable|numeric',
-            'barcode' => 'nullable|string',
+            'barcode' => 'nullable|unique:foods,barcode',
             'source_type' => 'required|string',
             'source_url' => 'nullable|url',
             'notes' => 'nullable|string',
@@ -83,7 +83,8 @@ class FoodController extends Controller
         'photo_types', 
         'deleted_photo_ids', 
         'existing_photo_types', 
-        '_method'
+        '_method',
+        'barcode' => 'nullable|unique:foods,barcode,' . $id
     ]));
 
     if ($request->has('deleted_photo_ids')) {
