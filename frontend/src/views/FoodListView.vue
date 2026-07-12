@@ -1,23 +1,27 @@
 <template>
   <div class="max-w-6xl mx-auto p-6 bg-white shadow-sm rounded-lg mt-10 mb-10 border border-gray-200">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
       <h2 class="text-2xl font-bold text-gray-800">Gespeicherte Lebensmittel</h2>
+      <div class="w-full md:w-80">
+        <BaseInput 
+          v-model="searchQuery" 
+          placeholder="Suchen nach Namen, Marke, Barcode..." 
+        />
+      </div>
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
+      <table class="w-full text-left border-collapse table-fixed">
         <thead>
           <tr class="border-b border-gray-200 text-sm font-semibold text-gray-600 bg-gray-50">
-            <th class="p-4 w-16">Bild</th>
-            <th class="p-4">Name</th>
-            <th class="p-4">Variante</th>
-            <th class="p-4">Brand</th>
-            <th class="p-4">Menge</th>
-            <th class="p-4 text-right">Aktionen</th>
+            <th class="p-4 w-20">Bild</th>
+            <th class="p-4 w-1/2">Name</th>
+            <th class="p-4 w-1/4 pl-8">Brand</th>
+            <th class="p-4 w-1/4 text-right pr-6">Menge</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
-          <tr v-for="food in foods" :key="food.id" class="hover:bg-gray-50 transition duration-75 group">
+        <tbody class="divide-y divide-gray-100 text-base text-gray-700">
+          <tr v-for="food in paginatedFoods" :key="food.id" @click="openDetailModal(food)" class="bg-white even:bg-gray-50 hover:bg-gray-100 transition duration-75 group cursor-pointer">
             
             <td class="p-4">
               <div class="w-12 h-12 bg-gray-100 rounded border border-gray-200 overflow-hidden flex items-center justify-center">
@@ -33,62 +37,52 @@
               </div>
             </td>
             
-            <td class="p-4 font-semibold text-gray-900">
-              {{ food.name }}
+            <td class="p-4 overflow-hidden">
+              <div class="font-semibold text-gray-900 text-lg truncate" :title="food.name">{{ food.name }}</div>
+              <div v-if="food.variant" class="text-sm text-gray-500 mt-0.5 truncate" :title="food.variant">{{ food.variant }}</div>
             </td>
             
-            <td class="p-4">
-              <span v-if="food.variant" class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
-                {{ food.variant }}
-              </span>
-              <span v-else class="text-gray-400">-</span>
-            </td>
-            
-            <td class="p-4">
-              <div v-if="food.brand" class="flex items-center space-x-3">
+            <td class="p-4 pl-8 overflow-hidden">
+              <div v-if="food.brand" class="flex items-center space-x-3" :title="food.brand.name">
                 <img 
                   v-if="food.brand.logo_path" 
                   :src="`http://localhost:8000/storage/${food.brand.logo_path}`" 
                   alt="Logo"
-                  class="w-8 h-8 object-contain rounded bg-white border border-gray-200 p-0.5"
+                  class="w-8 h-8 flex-shrink-0 object-contain rounded bg-white border border-gray-200 p-0.5"
                 >
-                <div v-else class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-400 rounded border border-gray-200 text-xs font-bold uppercase">
+                <div v-else class="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-gray-100 text-gray-400 rounded border border-gray-200 text-xs font-bold uppercase">
                   {{ food.brand.name.charAt(0) }}
                 </div>
-                <span class="text-gray-700 font-medium">{{ food.brand.name }}</span>
+                <span class="text-gray-700 font-medium truncate">{{ food.brand.name }}</span>
               </div>
               <span v-else class="text-gray-400">-</span>
             </td>
             
-            <td class="p-4 font-medium text-gray-800">
+            <td class="p-4 font-medium text-gray-800 text-right pr-6">
               {{ food.total_amount }} {{ food.measurement_unit }}
-            </td>
-            
-            <td class="p-4 text-right">
-              <div class="flex items-center justify-end space-x-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                <button 
-                  @click="openDetailModal(food)"
-                  class="text-blue-600 hover:text-blue-800 font-medium transition-colors text-sm"
-                  title="Details anzeigen"
-                >
-                  Details
-                </button>
-                <button 
-                  @click="deleteFood(food.id)" 
-                  class="text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
-                  title="Eintrag löschen"
-                >
-                  Löschen
-                </button>
-              </div>
             </td>
 
           </tr>
         </tbody>
       </table>
 
-      <div v-if="foods.length === 0" class="p-12 text-center text-gray-500 border-t border-gray-100">
-        Noch keine Lebensmittel in der Datenbank vorhanden.
+      <div v-if="filteredFoods.length === 0" class="p-12 text-center text-gray-500 border-t border-gray-100">
+        Keine Lebensmittel gefunden.
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-between items-center mt-4 text-sm text-gray-600 gap-4" v-if="filteredFoods.length > 0">
+      <div>
+        Zeige {{ (currentPage - 1) * itemsPerPage + 1 }} bis {{ Math.min(currentPage * itemsPerPage, filteredFoods.length) }} von {{ filteredFoods.length }} Einträgen
+      </div>
+      <div class="flex items-center space-x-2">
+        <BaseButton variant="secondary" :disabled="currentPage === 1" @click="currentPage--">
+          Zurück
+        </BaseButton>
+        
+        <BaseButton variant="secondary" :disabled="currentPage === totalPages" @click="currentPage++">
+          Weiter
+        </BaseButton>
       </div>
     </div>
 
@@ -96,17 +90,62 @@
       :isOpen="isDetailModalOpen" 
       :food="selectedFood" 
       @close="isDetailModalOpen = false" 
+      @delete="deleteFood"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import FoodDetailModal from '../components/FoodDetailModal.vue'
+import BaseButton from '../components/BaseButton.vue'
+import BaseInput from '../components/BaseInput.vue'
 
 const foods = ref<any[]>([])
 const selectedFood = ref<any>(null)
 const isDetailModalOpen = ref(false)
+
+const searchQuery = ref('')
+const itemsPerPage = 10
+const currentPage = ref(1)
+
+const filteredFoods = computed(() => {
+  const query = searchQuery.value.toLowerCase().trim()
+  if (!query) return foods.value
+
+  return foods.value.filter(food => {
+    return (
+      (food.name || '').toLowerCase().includes(query) ||
+      (food.variant || '').toLowerCase().includes(query) ||
+      (food.barcode || '').toLowerCase().includes(query) ||
+      (food.meat_type || '').toLowerCase().includes(query) ||
+      (food.state || '').toLowerCase().includes(query) ||
+      (food.notes || '').toLowerCase().includes(query) ||
+      (food.brand?.name || '').toLowerCase().includes(query) ||
+      (food.brand?.manufacturer?.name || '').toLowerCase().includes(query) ||
+      (food.main_category?.name || '').toLowerCase().includes(query) ||
+      (food.sub_category?.name || '').toLowerCase().includes(query)
+    )
+  })
+})
+
+const totalPages = computed(() => Math.ceil(filteredFoods.value.length / itemsPerPage) || 1)
+
+watch(searchQuery, () => {
+  currentPage.value = 1
+})
+
+watch(totalPages, (newTotal) => {
+  if (currentPage.value > newTotal) {
+    currentPage.value = newTotal || 1
+  }
+})
+
+const paginatedFoods = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return filteredFoods.value.slice(start, end)
+})
 
 const fetchFoods = async () => {
   try {
@@ -146,6 +185,7 @@ const deleteFood = async (id: number) => {
     })
     if (response.ok || response.status === 204) {
       foods.value = foods.value.filter(food => food.id !== id)
+      isDetailModalOpen.value = false
     } else {
       console.error('Fehler vom Backend:', await response.text())
     }

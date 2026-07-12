@@ -7,9 +7,9 @@
           <h3 class="text-xl font-bold text-gray-800">{{ food.name }}</h3>
           <p v-if="food.variant" class="text-sm text-gray-500 mt-0.5">{{ food.variant }}</p>
         </div>
-        <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 font-bold text-xl">
+        <BaseButton variant="icon" size="none" customClass="text-xl font-bold" @click="$emit('close')">
           &times;
-        </button>
+        </BaseButton>
       </div>
 
       <div class="p-6 space-y-6">
@@ -111,15 +111,18 @@
         </div>
       </div>
 
-      <div class="px-6 py-4 border-t border-gray-100 flex justify-end space-x-3 bg-gray-50 sticky bottom-0">
-        <button @click="goToEdit"
-          class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md text-sm shadow-sm transition">
-          Bearbeiten
-        </button>
-        <button @click="$emit('close')"
-          class="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md text-sm shadow-sm transition">
-          Schließen
-        </button>
+      <div class="px-6 py-4 border-t border-gray-100 flex justify-between space-x-3 bg-gray-50 sticky bottom-0">
+        <BaseButton variant="danger" @click="handleDelete">
+          Löschen
+        </BaseButton>
+        <div class="flex space-x-3">
+          <BaseButton variant="warning" @click="goToEdit">
+            Bearbeiten
+          </BaseButton>
+          <BaseButton variant="secondary" @click="$emit('close')">
+            Schließen
+          </BaseButton>
+        </div>
       </div>
 
     </div>
@@ -128,13 +131,18 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import BaseButton from './BaseButton.vue'
 
 const props = defineProps<{
   isOpen: boolean
   food: any
 }>()
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'delete'])
+
+const handleDelete = () => {
+  emit('delete', props.food.id)
+}
 const router = useRouter()
 
 const translateType = (type: string) => {

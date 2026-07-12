@@ -10,7 +10,7 @@ class BrandController extends Controller
 {
     public function index()
     {
-        return response()->json(Brand::all());
+        return response()->json(Brand::with('manufacturer')->get());
     }
 
     public function store(Request $request)
