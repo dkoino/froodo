@@ -7,33 +7,54 @@
           <h3 class="text-xl font-bold text-gray-800">{{ food.name }}</h3>
           <p v-if="food.variant" class="text-sm text-gray-500 mt-0.5">{{ food.variant }}</p>
         </div>
-        <BaseButton variant="icon" size="none" customClass="text-xl font-bold" @click="$emit('close')">
+        <BaseButton size="none" class="text-xl font-bold text-gray-400 hover:text-gray-600" @click="$emit('close')">
           &times;
         </BaseButton>
       </div>
 
       <div class="p-6 space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="md:col-span-2 space-y-4">
-            <div class="bg-gray-50 p-4 rounded-md border border-gray-100 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span class="block text-gray-400 text-xs font-medium uppercase">Marke</span>
-                <span class="text-gray-800 font-semibold">{{ food.brand ? food.brand.name : '-' }}</span>
-              </div>
-              <div>
-                <span class="block text-gray-400 text-xs font-medium uppercase">Gesamtmenge</span>
-                <span class="text-gray-800 font-semibold">{{ food.total_amount }} {{ food.measurement_unit }}</span>
-              </div>
-              <div>
-                <span class="block text-gray-400 text-xs font-medium uppercase">Preis</span>
-                <span class="text-gray-800 font-semibold">{{ food.price ? `${food.price} €` : '-' }}</span>
-              </div>
-              <div>
-                <span class="block text-gray-400 text-xs font-medium uppercase">Barcode (EAN)</span>
-                <span class="text-gray-800 font-semibold">{{ food.barcode || '-' }}</span>
-              </div>
-            </div>
+        
+        <div class="bg-gray-50 p-4 rounded-md border border-gray-100 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+          <div class="col-span-2">
+            <span class="block text-gray-400 text-xs font-medium uppercase">Marke & Hersteller</span>
+            <span class="text-gray-800 font-semibold">
+              <span v-if="food.brand" class="cursor-pointer hover:text-blue-600 transition-colors" @click="emitSearch('Marke', food.brand.name)">{{ food.brand.name }}</span>
+              <span v-else>-</span>
+              <span v-if="food.brand?.manufacturer" class="text-gray-500 font-normal"> &gt; <span class="cursor-pointer hover:text-blue-600 transition-colors" @click="emitSearch('Hersteller', food.brand.manufacturer.name)">{{ food.brand.manufacturer.name }}</span></span>
+            </span>
+          </div>
+          <div>
+            <span class="block text-gray-400 text-xs font-medium uppercase">Kategorie</span>
+            <span class="text-gray-800 font-semibold">
+              <span v-if="food.main_category" class="cursor-pointer hover:text-blue-600 transition-colors" @click="emitSearch('Kategorie', food.main_category.name)">{{ food.main_category.name }}</span>
+              <span v-else>-</span>
+              <span v-if="food.sub_category" class="text-gray-500 font-normal"> &gt; <span class="cursor-pointer hover:text-blue-600 transition-colors" @click="emitSearch('Kategorie', food.sub_category.name)">{{ food.sub_category.name }}</span></span>
+            </span>
+          </div>
+          <div>
+            <span class="block text-gray-400 text-xs font-medium uppercase">Zustand</span>
+            <span class="text-gray-800 font-semibold" :class="{'cursor-pointer hover:text-blue-600 transition-colors': food.state}" @click="emitSearch('Zustand', food.state)">{{ food.state || '-' }}</span>
+          </div>
+          <div>
+            <span class="block text-gray-400 text-xs font-medium uppercase">Gesamtmenge</span>
+            <span class="text-gray-800 font-semibold">{{ food.total_amount }} {{ food.measurement_unit }}</span>
+          </div>
+          <div>
+            <span class="block text-gray-400 text-xs font-medium uppercase">Fleischsorte</span>
+            <span class="text-gray-800 font-semibold" :class="{'cursor-pointer hover:text-blue-600 transition-colors': food.meat_type && food.meat_type !== 'Unbekannt'}" @click="emitSearch('Fleisch', food.meat_type && food.meat_type !== 'Unbekannt' ? food.meat_type : null)">{{ food.meat_type && food.meat_type !== 'Unbekannt' ? food.meat_type : '-' }}</span>
+          </div>
+          <div>
+            <span class="block text-gray-400 text-xs font-medium uppercase">Preis</span>
+            <span class="text-gray-800 font-semibold">{{ food.price ? `${food.price} €` : '-' }}</span>
+          </div>
+          <div>
+            <span class="block text-gray-400 text-xs font-medium uppercase">Barcode (EAN)</span>
+            <span class="text-gray-800 font-semibold" :class="{'cursor-pointer hover:text-blue-600 transition-colors': food.barcode}" @click="emitSearch('Barcode', food.barcode)">{{ food.barcode || '-' }}</span>
+          </div>
+        </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-6">
             <div>
               <h3 class="text-sm font-bold tracking-wider text-gray-700 uppercase mb-4">
                 Nährwerte pro 100 {{ food?.measurement_unit || 'g' }}
@@ -85,11 +106,6 @@
                 </table>
               </div>
             </div>
-
-            <div v-if="food.notes" class="text-sm bg-gray-50 p-4 rounded border border-gray-100">
-              <span class="block text-gray-400 text-xs font-medium uppercase mb-1">Notizen</span>
-              <p class="text-gray-700 whitespace-pre-line">{{ food.notes }}</p>
-            </div>
           </div>
 
           <div class="space-y-4">
@@ -109,17 +125,22 @@
             </div>
           </div>
         </div>
+
+        <div v-if="food.notes" class="text-sm bg-gray-50 p-4 rounded border border-gray-100">
+          <span class="block text-gray-400 text-xs font-medium uppercase mb-1">Notizen</span>
+          <p class="text-gray-700 whitespace-pre-line">{{ food.notes }}</p>
+        </div>
       </div>
 
       <div class="px-6 py-4 border-t border-gray-100 flex justify-between space-x-3 bg-gray-50 sticky bottom-0">
-        <BaseButton variant="danger" @click="handleDelete">
+        <BaseButton class="bg-red-600 text-white shadow-sm rounded-md" @click="handleDelete">
           Löschen
         </BaseButton>
         <div class="flex space-x-3">
-          <BaseButton variant="warning" @click="goToEdit">
+          <BaseButton class="bg-amber-600 text-white shadow-sm rounded-md" @click="goToEdit">
             Bearbeiten
           </BaseButton>
-          <BaseButton variant="secondary" @click="$emit('close')">
+          <BaseButton class="bg-white text-gray-700 border border-gray-300 shadow-sm rounded-md" @click="$emit('close')">
             Schließen
           </BaseButton>
         </div>
@@ -138,7 +159,12 @@ const props = defineProps<{
   food: any
 }>()
 
-const emit = defineEmits(['close', 'delete'])
+const emit = defineEmits(['close', 'delete', 'search'])
+
+const emitSearch = (prefix: string, value: any) => {
+  if (!value || value === '-') return
+  emit('search', `${prefix}:${value}`)
+}
 
 const handleDelete = () => {
   emit('delete', props.food.id)

@@ -28,7 +28,7 @@
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">Daten-Export</h3>
                 <p class="text-sm text-gray-500 mb-6">Lade die komplette Lebensmittel-Datenbank als CSV-Datei herunter,
                     um sie in Excel zu bearbeiten oder ein Backup zu erstellen.</p>
-                <BaseButton variant="secondary-gray" size="lg" customClass="w-full" @click="handleExport">
+                <BaseButton size="lg" class="w-full bg-gray-100 text-gray-800 border border-gray-300 rounded-md" @click="handleExport">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -45,7 +45,7 @@
                 <form @submit.prevent="handleImport">
                     <input type="file" accept=".csv" @change="onFileSelect" required
                         class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-4 cursor-pointer">
-                    <BaseButton type="submit" variant="primary" size="lg" customClass="w-full" :disabled="isUploading">
+                    <BaseButton type="submit" size="lg" class="w-full bg-gray-800 text-white shadow-sm rounded-md" :disabled="isUploading">
                         <span v-if="isUploading">Wird importiert...</span>
                         <span v-else class="flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

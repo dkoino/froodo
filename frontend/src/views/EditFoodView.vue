@@ -5,7 +5,7 @@
                 <h2 class="text-2xl font-bold text-gray-800">Lebensmittel bearbeiten</h2>
                 <p class="text-sm text-gray-500 mt-1">ID: {{ foodId }}</p>
             </div>
-            <BaseButton variant="text" size="none" @click="router.push('/foods')">
+            <BaseButton size="none" class="text-gray-500 hover:text-gray-700" @click="router.push('/foods')">
                 &larr; Zurück
             </BaseButton>
         </div>

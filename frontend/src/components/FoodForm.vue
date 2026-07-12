@@ -123,7 +123,7 @@
                     class="relative border border-blue-200 rounded p-3 bg-blue-50/30 flex flex-col items-center group">
                     <span
                         class="absolute top-1 left-1 bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Gespeichert</span>
-                    <BaseButton variant="danger-icon" size="none" customClass="absolute top-1 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs" @click="removeExistingImage(index, photo.id)" title="Bild löschen">
+                    <BaseButton size="none" class="absolute top-1 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs bg-red-100 text-red-600" @click="removeExistingImage(index, photo.id)" title="Bild löschen">
                         &times;
                     </BaseButton>
                     <img :src="`http://localhost:8000/storage/${photo.file_path}`"
@@ -143,7 +143,7 @@
                     class="relative border border-gray-200 rounded p-3 bg-white flex flex-col items-center group">
                     <span
                         class="absolute top-1 left-1 bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Neu</span>
-                    <BaseButton variant="danger-icon" size="none" customClass="absolute top-1 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs md:opacity-0 md:group-hover:opacity-100 transition-opacity" @click="removeNewImage(index)" title="Bild löschen">
+                    <BaseButton size="none" class="absolute top-1 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-100 text-red-600" @click="removeNewImage(index)" title="Bild löschen">
                         &times;
                     </BaseButton>
                     <img :src="src" class="w-full h-28 object-contain rounded mb-3 mt-3">
@@ -170,7 +170,7 @@
         </div>
 
         <div class="pt-2">
-            <BaseButton type="submit" variant="primary" size="lg" customClass="w-full py-3 shadow-sm">
+            <BaseButton type="submit" size="lg" class="w-full py-3 bg-gray-800 text-white shadow-sm rounded-md">
                 {{ isEditMode ? 'Änderungen speichern' : 'Lebensmittel anlegen' }}
             </BaseButton>
         </div>

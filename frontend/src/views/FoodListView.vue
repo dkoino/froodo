@@ -76,11 +76,11 @@
         Zeige {{ (currentPage - 1) * itemsPerPage + 1 }} bis {{ Math.min(currentPage * itemsPerPage, filteredFoods.length) }} von {{ filteredFoods.length }} Einträgen
       </div>
       <div class="flex items-center space-x-2">
-        <BaseButton variant="secondary" :disabled="currentPage === 1" @click="currentPage--">
+        <BaseButton class="bg-white text-gray-700 border border-gray-300 shadow-sm rounded-md" :disabled="currentPage === 1" @click="currentPage--">
           Zurück
         </BaseButton>
         
-        <BaseButton variant="secondary" :disabled="currentPage === totalPages" @click="currentPage++">
+        <BaseButton class="bg-white text-gray-700 border border-gray-300 shadow-sm rounded-md" :disabled="currentPage === totalPages" @click="currentPage++">
           Weiter
         </BaseButton>
       </div>
@@ -91,6 +91,7 @@
       :food="selectedFood" 
       @close="isDetailModalOpen = false" 
       @delete="deleteFood"
+      @search="handleSearch"
     />
   </div>
 </template>
@@ -110,8 +111,50 @@ const itemsPerPage = 10
 const currentPage = ref(1)
 
 const filteredFoods = computed(() => {
-  const query = searchQuery.value.toLowerCase().trim()
-  if (!query) return foods.value
+  const rawQuery = searchQuery.value.trim()
+  if (!rawQuery) return foods.value
+
+  const query = rawQuery.toLowerCase()
+  const prefixMatch = query.match(/^([a-zäöüß]+):(.*)/i)
+
+  if (prefixMatch) {
+    const prefix = prefixMatch[1].trim()
+    const searchTerm = prefixMatch[2].trim()
+
+    if (searchTerm) {
+      let isKnownPrefix = true
+      const filtered = foods.value.filter(food => {
+        if (['name'].includes(prefix)) {
+          return (food.name || '').toLowerCase().includes(searchTerm) ||
+                 (food.variant || '').toLowerCase().includes(searchTerm)
+        }
+        if (['marke', 'brand', 'hersteller'].includes(prefix)) {
+          return (food.brand?.name || '').toLowerCase().includes(searchTerm) ||
+                 (food.brand?.manufacturer?.name || '').toLowerCase().includes(searchTerm)
+        }
+        if (['kategorie', 'category'].includes(prefix)) {
+          return (food.main_category?.name || '').toLowerCase().includes(searchTerm) ||
+                 (food.sub_category?.name || '').toLowerCase().includes(searchTerm)
+        }
+        if (['barcode', 'ean'].includes(prefix)) {
+          return (food.barcode || '').toLowerCase().includes(searchTerm)
+        }
+        if (['fleisch', 'meat'].includes(prefix)) {
+          return (food.meat_type || '').toLowerCase().includes(searchTerm)
+        }
+        if (['zustand', 'state'].includes(prefix)) {
+          return (food.state || '').toLowerCase().includes(searchTerm)
+        }
+        if (['notiz', 'notizen', 'notes'].includes(prefix)) {
+          return (food.notes || '').toLowerCase().includes(searchTerm)
+        }
+        isKnownPrefix = false
+        return false
+      })
+
+      if (isKnownPrefix) return filtered
+    }
+  }
 
   return foods.value.filter(food => {
     return (
@@ -192,6 +235,11 @@ const deleteFood = async (id: number) => {
   } catch (error) {
     console.error('Netzwerk-Fehler beim Löschen:', error)
   }
+}
+
+const handleSearch = (query: string) => {
+  searchQuery.value = query
+  isDetailModalOpen.value = false
 }
 
 onMounted(() => {
