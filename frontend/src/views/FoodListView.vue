@@ -148,6 +148,9 @@ const filteredFoods = computed(() => {
         if (['notiz', 'notizen', 'notes'].includes(prefix)) {
           return (food.notes || '').toLowerCase().includes(searchTerm)
         }
+        if (['nutzer', 'user'].includes(prefix)) {
+          return (food.user?.name || '').toLowerCase().includes(searchTerm)
+        }
         isKnownPrefix = false
         return false
       })
@@ -167,7 +170,8 @@ const filteredFoods = computed(() => {
       (food.brand?.name || '').toLowerCase().includes(query) ||
       (food.brand?.manufacturer?.name || '').toLowerCase().includes(query) ||
       (food.main_category?.name || '').toLowerCase().includes(query) ||
-      (food.sub_category?.name || '').toLowerCase().includes(query)
+      (food.sub_category?.name || '').toLowerCase().includes(query) ||
+      (food.user?.name || '').toLowerCase().includes(query)
     )
   })
 })
@@ -192,7 +196,7 @@ const paginatedFoods = computed(() => {
 
 const fetchFoods = async () => {
   try {
-    const response = await fetch('http://localhost:8000/api/foods')
+    const response = await fetch('http://localhost:8000/api/foods', { credentials: 'include', credentials: 'include' })
     const data = await response.json()
     foods.value = Array.isArray(data) ? data : data.data || data
   } catch (error) {
@@ -223,7 +227,7 @@ const deleteFood = async (id: number) => {
     return
   }
   try {
-    const response = await fetch(`http://localhost:8000/api/foods/${id}`, {
+    const response = await fetch(`http://localhost:8000/api/foods/${id}`, { credentials: 'include',
       method: 'DELETE',
     })
     if (response.ok || response.status === 204) {

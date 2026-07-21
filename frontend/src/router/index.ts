@@ -3,6 +3,10 @@ import CreateFoodView from '../views/CreateFoodView.vue'
 import FoodListView from '../views/FoodListView.vue'
 import EditFoodView from '../views/EditFoodView.vue'
 import ImportExportView from '../views/ImportExportView.vue'
+import UserListView from '../views/UserListView.vue'
+import CreateUserView from '../views/CreateUserView.vue'
+import EditUserView from '../views/EditUserView.vue'
+import LoginView from '../views/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +30,26 @@ const router = createRouter({
       path: '/import-export',
       name: 'import-export',
       component: ImportExportView
+    },
+    {
+      path: '/users',
+      name: 'users.index',
+      component: UserListView
+    },
+    {
+      path: '/users/create',
+      name: 'users.create',
+      component: CreateUserView
+    },
+    {
+      path: '/users/:id/edit',
+      name: 'users.edit',
+      component: EditUserView
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView
     }
   ]
 })

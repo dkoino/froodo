@@ -37,7 +37,7 @@ const isLoading = ref(true);
 
 const fetchFood = async () => {
     try {
-        const response = await fetch(`http://localhost:8000/api/foods/${foodId}`);
+        const response = await fetch(`http://localhost:8000/api/foods/${foodId}`, { credentials: 'include', credentials: 'include' });
         if (response.ok) {
             foodData.value = await response.json();
         } else {
@@ -54,7 +54,7 @@ const handleUpdate = async (formData: FormData) => {
     formData.append('_method', 'PUT');
 
     try {
-        const response = await fetch(`http://localhost:8000/api/foods/${foodId}`, {
+        const response = await fetch(`http://localhost:8000/api/foods/${foodId}`, { credentials: 'include',
             method: 'POST',
             body: formData,
         });

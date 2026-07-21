@@ -292,7 +292,7 @@ watch(() => props.initialData, (newData) => {
 
 const fetchBrands = async () => {
     try {
-        const response = await fetch('http://localhost:8000/api/brands');
+        const response = await fetch('http://localhost:8000/api/brands', { credentials: 'include', credentials: 'include' });
         brands.value = await response.json();
     } catch (error) {
         console.error(error);
@@ -302,8 +302,8 @@ const fetchBrands = async () => {
 const fetchCategories = async () => {
     try {
         const [mainRes, subRes] = await Promise.all([
-            fetch('http://localhost:8000/api/main-categories'),
-            fetch('http://localhost:8000/api/sub-categories')
+            fetch('http://localhost:8000/api/main-categories', { credentials: 'include', credentials: 'include' }),
+            fetch('http://localhost:8000/api/sub-categories', { credentials: 'include', credentials: 'include' })
         ]);
         mainCategories.value = await mainRes.json();
         subCategories.value = await subRes.json();

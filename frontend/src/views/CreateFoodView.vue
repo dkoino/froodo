@@ -17,7 +17,7 @@ const router = useRouter();
 
 const handleCreate = async (formData: FormData) => {
   try {
-    const response = await fetch('http://localhost:8000/api/foods', {
+    const response = await fetch('http://localhost:8000/api/foods', { credentials: 'include',
       method: 'POST',
       body: formData, // FormData setzt den Content-Type automatisch auf multipart/form-data
     });

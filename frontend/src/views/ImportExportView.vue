@@ -92,7 +92,7 @@ const handleImport = async () => {
     formData.append('file', selectedFile.value);
 
     try {
-        const response = await fetch('http://localhost:8000/api/import/foods', {
+        const response = await fetch('http://localhost:8000/api/import/foods', { credentials: 'include',
             method: 'POST',
             body: formData,
         });

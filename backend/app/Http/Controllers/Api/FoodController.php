@@ -11,7 +11,7 @@ class FoodController extends Controller
 {
     public function index()
     {
-        return response()->json(Food::with(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory'])->get());
+        return response()->json(Food::with(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory', 'user'])->get());
     }
 
     public function store(Request $request)
@@ -84,6 +84,8 @@ class FoodController extends Controller
         unset($data['brand_name']);
         unset($data['manufacturer_name']);
 
+        $data['user_id'] = auth()->id();
+
         $food = Food::create($data);
 
         if ($request->hasFile('photos')) {
@@ -116,7 +118,7 @@ class FoodController extends Controller
     
     public function show($id)
     {
-        return response()->json(Food::with(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory'])->findOrFail($id));
+        return response()->json(Food::with(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory', 'user'])->findOrFail($id));
     }
 
     public function update(Request $request, $id)
@@ -205,6 +207,6 @@ class FoodController extends Controller
         }
     }
 
-    return response()->json($food->load(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory']), 200);
+    return response()->json($food->load(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory', 'user']), 200);
     }
 }

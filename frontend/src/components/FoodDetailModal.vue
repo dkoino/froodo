@@ -130,6 +130,13 @@
           <span class="block text-gray-400 text-xs font-medium uppercase mb-1">Notizen</span>
           <p class="text-gray-700 whitespace-pre-line">{{ food.notes }}</p>
         </div>
+
+        <div v-if="food.user" class="text-xs text-gray-400 text-right mt-4 italic">
+          Angelegt von: 
+          <span class="cursor-pointer hover:text-gray-600 transition-colors" @click="emitSearch('Nutzer', food.user.name)">
+            {{ food.user.name }}
+          </span>
+        </div>
       </div>
 
       <div class="px-6 py-4 border-t border-gray-100 flex justify-between space-x-3 bg-gray-50 sticky bottom-0">

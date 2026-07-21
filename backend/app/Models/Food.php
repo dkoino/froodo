@@ -36,7 +36,8 @@ class Food extends Model
         'price',
         'notes',
         'source_type',
-        'source_url'
+        'source_url',
+        'user_id'
     ];
 
     public function mainCategory()
@@ -56,5 +57,10 @@ class Food extends Model
     public function photos()
     {
         return $this->hasMany(Photo::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
