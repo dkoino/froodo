@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\FoodImportExportController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\FoodLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/foods', [FoodController::class, 'index']);
@@ -35,3 +36,11 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
+
+# FOOD LOGS
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/food-logs', [FoodLogController::class, 'index']);
+    Route::post('/food-logs', [FoodLogController::class, 'store']);
+    Route::put('/food-logs/{id}', [FoodLogController::class, 'update']);
+    Route::delete('/food-logs/{id}', [FoodLogController::class, 'destroy']);
+});
