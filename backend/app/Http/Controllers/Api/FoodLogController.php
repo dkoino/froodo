@@ -22,6 +22,28 @@ class FoodLogController extends Controller
         return response()->json($logs);
     }
 
+    public function history()
+    {
+        $logs = FoodLog::with(['food.brand'])
+            ->where('user_id', auth()->id())
+            ->orderBy('consumed_at', 'desc')
+            ->get();
+
+        $grouped = $logs->groupBy(function ($log) {
+            return Carbon::parse($log->consumed_at)->format('Y-m-d');
+        });
+
+        $result = [];
+        foreach ($grouped as $date => $dayLogs) {
+            $result[] = [
+                'date' => $date,
+                'logs' => $dayLogs
+            ];
+        }
+
+        return response()->json($result);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

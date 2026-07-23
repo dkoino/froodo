@@ -40,6 +40,7 @@ Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 # FOOD LOGS
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/food-logs', [FoodLogController::class, 'index']);
+    Route::get('/food-logs/history', [FoodLogController::class, 'history']);
     Route::post('/food-logs', [FoodLogController::class, 'store']);
     Route::put('/food-logs/{id}', [FoodLogController::class, 'update']);
     Route::delete('/food-logs/{id}', [FoodLogController::class, 'destroy']);

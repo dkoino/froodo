@@ -1,20 +1,27 @@
 <template>
   <div>
     <div class="mb-6 flex items-center justify-between">
-      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Heute</h1>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Verlauf</h1>
+      <button @click="openAddModal('')" class="bg-blue-600 text-white hover:bg-blue-700 font-medium py-2 px-4 rounded-lg shadow-sm transition-colors flex items-center text-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Eintrag hinzufügen
+      </button>
     </div>
 
-    <DailyFoodLog 
-      :logs="logs" 
-      :loading="loading" 
-      empty-message="Heute wurde noch nichts eingetragen."
-      :date="getTodayDateStr()"
-      @update-log="handleUpdateLog"
-      @delete-log="handleDeleteLog"
-      @add-log="openAddModal"
-    />
-
-
+    <div v-if="historyLogs.length > 0" class="mt-6">
+      <DailyFoodLog 
+        v-for="day in historyLogs" 
+        :key="day.date" 
+        :title="formatDate(day.date)" 
+        :logs="day.logs" 
+        :date="day.date"
+        @update-log="handleHistoryUpdateLog($event, day.date)" 
+        @delete-log="handleHistoryDeleteLog($event, day.date)" 
+        @add-log="openAddModal"
+      />
+    </div>
 
 
 
@@ -96,7 +103,7 @@
 import { ref, onMounted, computed } from 'vue'
 import DailyFoodLog from '@/components/DailyFoodLog.vue'
 
-const logs = ref<any[]>([])
+const historyLogs = ref<any[]>([])
 const availableFoods = ref<any[]>([])
 const loading = ref(true)
 const showAddModal = ref(false)
@@ -203,7 +210,7 @@ const submitAddLog = async () => {
       searchQuery.value = ''
       
       // Refresh all to keep it simple and ensure order is correct
-      fetchLogs()
+      fetchHistoryLogs()
     } else {
       alert('Fehler beim Speichern des Eintrags.')
     }
@@ -215,43 +222,53 @@ const submitAddLog = async () => {
   }
 }
 
-const fetchLogs = async () => {
-  loading.value = true
+
+
+const fetchHistoryLogs = async () => {
   try {
-    const response = await fetch('http://localhost:8000/api/food-logs', {
+    const response = await fetch('http://localhost:8000/api/food-logs/history', {
       credentials: 'include'
     })
     if (response.ok) {
-      logs.value = await response.json()
-    } else if (response.status === 401) {
-      alert('Bitte logge dich ein, um dein Tagebuch zu sehen.')
+      historyLogs.value = await response.json()
     }
   } catch (error) {
-    console.error('Fehler beim Laden der Food Logs:', error)
-  } finally {
-    loading.value = false
+    console.error('Fehler beim Laden des Verlaufs:', error)
   }
 }
 
+const formatDate = (dateStr: string) => {
+  const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('de-DE', options)
+}
 
 
-const handleUpdateLog = (payload: { id: number, amount: number }) => {
-  const log = logs.value.find(l => l.id === payload.id)
-  if (log) {
-    log.amount = payload.amount
+
+const handleHistoryUpdateLog = (payload: { id: number, amount: number }, dateStr: string) => {
+  const day = historyLogs.value.find(d => d.date === dateStr)
+  if (day) {
+    const log = day.logs.find((l: any) => l.id === payload.id)
+    if (log) {
+      log.amount = payload.amount
+    }
   }
 }
 
-const handleDeleteLog = (id: number) => {
-  logs.value = logs.value.filter(log => log.id !== id)
+const handleHistoryDeleteLog = (id: number, dateStr: string) => {
+  const day = historyLogs.value.find(d => d.date === dateStr)
+  if (day) {
+    day.logs = day.logs.filter((l: any) => l.id !== id)
+    if (day.logs.length === 0) {
+      historyLogs.value = historyLogs.value.filter(d => d.date !== dateStr)
+    }
+  }
 }
-
-
 
 
 
 onMounted(() => {
-  fetchLogs()
+  fetchHistoryLogs()
   fetchAvailableFoods()
 })
 </script>

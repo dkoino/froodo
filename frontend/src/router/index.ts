@@ -9,6 +9,8 @@ import EditUserView from '../views/EditUserView.vue'
 import LoginView from '../views/LoginView.vue'
 import FoodLogView from '../views/FoodLogView.vue'
 
+import FoodLogHistoryView from '../views/FoodLogHistoryView.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -36,6 +38,11 @@ const router = createRouter({
       path: '/food-log',
       name: 'food-log.index',
       component: FoodLogView
+    },
+    {
+      path: '/food-log/history',
+      name: 'food-log.history',
+      component: FoodLogHistoryView
     },
     {
       path: '/users',
