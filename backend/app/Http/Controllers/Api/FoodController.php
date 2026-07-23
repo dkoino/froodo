@@ -21,10 +21,10 @@ class FoodController extends Controller
             'variant' => 'nullable|string',
             'brand_name' => 'nullable|string',
             'manufacturer_name' => 'nullable|string',
-            'total_amount' => 'required|numeric',
-            'measurement_unit' => 'required|string',
+            'total_amount' => 'required|integer|min:1',
+            'measurement_unit' => 'required|string|in:g,ml',
             'portion_label' => 'nullable|string',
-            'portion_amount' => 'nullable|numeric',
+            'portion_amount' => 'nullable|integer|min:1',
             'calories_p100' => 'required|numeric',
             'fat_p100' => 'required|numeric',
             'sat_fat_p100' => 'nullable|numeric',
@@ -42,6 +42,8 @@ class FoodController extends Controller
             'sub_category_name' => 'nullable|string',
             'meat_type' => 'nullable|string',
             'state' => 'nullable|string',
+            'photos.*' => 'nullable|image|max:2048',
+            'photo_types.*' => 'nullable|string',
         ]);
 
         $mainCategoryId = null;
@@ -90,12 +92,13 @@ class FoodController extends Controller
 
         if ($request->hasFile('photos')) {
             $types = $request->input('photo_types', []);
+            \Log::info('Store photos', ['types' => $types, 'files_count' => count($request->file('photos'))]);
             $files = $request->file('photos');
 
             foreach ($files as $index => $file) {
                 if ($file->isValid()) {
                     $path = $file->store('food-photos', 'public');
-                    $type = $types[$index] ?? 'general';
+                    $type = $types[$index] ?? 'other';
 
                     $food->photos()->create([
                         'file_path' => $path,
@@ -135,6 +138,11 @@ class FoodController extends Controller
         'sub_category_name',
         'brand_name',
         'manufacturer_name'
+    ]);
+
+    $request->validate([
+        'photos.*' => 'nullable|image|max:2048',
+        'photo_types.*' => 'nullable|string',
     ]);
 
     $mainCategoryId = null;
@@ -195,15 +203,19 @@ class FoodController extends Controller
 
     if ($request->hasFile('photos')) {
         $types = $request->input('photo_types', []);
+        \Log::info('Update photos received:', ['types' => $types, 'files_count' => count($request->file('photos'))]);
         
         foreach ($request->file('photos') as $index => $file) {
-            $path = $file->store('food-photos', 'public');
-            $type = $types[$index] ?? 'general';
-            
-            $food->photos()->create([
-                'file_path' => $path,
-                'type'      => $type,
-            ]);
+            if ($file->isValid()) {
+                $path = $file->store('food-photos', 'public');
+                $type = $types[$index] ?? 'other';
+                \Log::info("Mapping photo {$index} to type: {$type}");
+                
+                $food->photos()->create([
+                    'file_path' => $path,
+                    'type'      => $type,
+                ]);
+            }
         }
     }
 

@@ -13,7 +13,7 @@ class FoodLogController extends Controller
     {
         $date = $request->query('date') ? Carbon::parse($request->query('date')) : Carbon::today();
         
-        $logs = FoodLog::with(['food.brand'])
+        $logs = FoodLog::with(['food.brand', 'food.photos'])
             ->where('user_id', auth()->id())
             ->whereDate('consumed_at', $date)
             ->orderBy('consumed_at', 'asc')
@@ -24,7 +24,7 @@ class FoodLogController extends Controller
 
     public function history()
     {
-        $logs = FoodLog::with(['food.brand'])
+        $logs = FoodLog::with(['food.brand', 'food.photos'])
             ->where('user_id', auth()->id())
             ->orderBy('consumed_at', 'desc')
             ->get();
@@ -48,7 +48,7 @@ class FoodLogController extends Controller
     {
         $validated = $request->validate([
             'food_id' => 'required|exists:foods,id',
-            'amount' => 'required|numeric|min:0.1',
+            'amount' => 'required|integer|min:1',
             'meal_type' => 'nullable|string',
             'consumed_at' => 'nullable|date',
             'notes' => 'nullable|string',
@@ -71,7 +71,7 @@ class FoodLogController extends Controller
         $log = FoodLog::where('user_id', auth()->id())->findOrFail($id);
         
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:0.1',
+            'amount' => 'required|integer|min:1',
         ]);
 
         $log->update(['amount' => $validated['amount']]);

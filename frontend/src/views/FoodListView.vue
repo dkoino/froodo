@@ -14,17 +14,22 @@
       <table class="w-full text-left border-collapse table-fixed">
         <thead>
           <tr class="border-b border-gray-200 text-sm font-semibold text-gray-600 bg-gray-50">
-            <th class="p-4 w-20">Bild</th>
-            <th class="p-4 w-1/2">Name</th>
-            <th class="p-4 w-1/4 pl-8">Brand</th>
-            <th class="p-4 w-1/4 text-right pr-6">Menge</th>
+            <th class="p-2.5 w-24">Bild</th>
+            <th class="p-2.5 w-1/2">Name</th>
+            <th class="p-2.5 w-1/4 pl-8">Brand</th>
+            <th class="p-2.5 w-1/4 text-right pr-6">Menge</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 text-base text-gray-700">
           <tr v-for="food in paginatedFoods" :key="food.id" @click="openDetailModal(food)" class="bg-white even:bg-gray-50 hover:bg-gray-100 transition duration-75 group cursor-pointer">
             
-            <td class="p-4">
-              <div class="w-12 h-12 bg-gray-100 rounded border border-gray-200 overflow-hidden flex items-center justify-center">
+            <td class="p-2.5">
+              <div 
+                class="w-14 h-14 bg-gray-100 rounded border border-gray-200 overflow-hidden flex items-center justify-center relative cursor-pointer"
+                @mousemove="getPrimaryImage(food) ? updateMousePos($event) : null"
+                @mouseenter="getPrimaryImage(food) ? setHoveredImage(getPrimaryImage(food)) : null"
+                @mouseleave="clearHoveredImage"
+              >
                 <img 
                   v-if="getPrimaryImage(food)" 
                   :src="getPrimaryImage(food)" 
@@ -37,12 +42,12 @@
               </div>
             </td>
             
-            <td class="p-4 overflow-hidden">
+            <td class="p-2.5 overflow-hidden">
               <div class="font-semibold text-gray-900 text-lg truncate" :title="food.name">{{ food.name }}</div>
               <div v-if="food.variant" class="text-sm text-gray-500 mt-0.5 truncate" :title="food.variant">{{ food.variant }}</div>
             </td>
             
-            <td class="p-4 pl-8 overflow-hidden">
+            <td class="p-2.5 pl-8 overflow-hidden">
               <div v-if="food.brand" class="flex items-center space-x-3" :title="food.brand.name">
                 <img 
                   v-if="food.brand.logo_path" 
@@ -58,8 +63,8 @@
               <span v-else class="text-gray-400">-</span>
             </td>
             
-            <td class="p-4 font-medium text-gray-800 text-right pr-6">
-              {{ food.total_amount }} {{ food.measurement_unit }}
+            <td class="p-2.5 font-medium text-gray-800 text-right pr-6">
+              {{ Number(food.total_amount) }} {{ food.measurement_unit }}
             </td>
 
           </tr>
@@ -93,6 +98,17 @@
       @delete="deleteFood"
       @search="handleSearch"
     />
+
+    <!-- Image Preview Tooltip -->
+    <Teleport to="body">
+      <div 
+        v-if="hoveredImageSrc" 
+        class="fixed z-50 pointer-events-none transform -translate-x-1/2 translate-y-4 bg-white rounded-lg shadow-2xl border-4 border-white overflow-hidden transition-opacity duration-150"
+        :style="{ left: mouseX + 'px', top: mouseY + 'px' }"
+      >
+        <img :src="hoveredImageSrc" class="w-64 h-64 object-contain" />
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -105,6 +121,23 @@ import BaseInput from '../components/BaseInput.vue'
 const foods = ref<any[]>([])
 const selectedFood = ref<any>(null)
 const isDetailModalOpen = ref(false)
+
+const hoveredImageSrc = ref<string | null>(null)
+const mouseX = ref(0)
+const mouseY = ref(0)
+
+const setHoveredImage = (src: string) => {
+  hoveredImageSrc.value = src
+}
+
+const clearHoveredImage = () => {
+  hoveredImageSrc.value = null
+}
+
+const updateMousePos = (e: MouseEvent) => {
+  mouseX.value = e.clientX
+  mouseY.value = e.clientY
+}
 
 const searchQuery = ref('')
 const itemsPerPage = 10
@@ -208,8 +241,9 @@ const getPrimaryImage = (food: any) => {
   if (!food.photos || !Array.isArray(food.photos) || food.photos.length === 0) {
     return null
   }
-  const primaryPhoto = food.photos.find((p: any) => p.type === 'front') 
-                    || food.photos.find((p: any) => p.type === 'product') 
+  const primaryPhoto = food.photos.find((p: any) => p.type === 'packaging') 
+    || food.photos.find((p: any) => p.type === 'content')
+    || food.photos.find((p: any) => p.type === 'other') 
                     || food.photos[0]
   if (!primaryPhoto || !primaryPhoto.file_path) {
     return null

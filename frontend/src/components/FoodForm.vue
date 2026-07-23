@@ -1,7 +1,25 @@
 <template>
     <form @submit.prevent="submitForm" class="space-y-6">
         <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold mb-4 border-b border-gray-200 pb-2 text-gray-700">Allgemein</h3>
+            <div class="flex justify-between items-start mb-4 border-b border-gray-200 pb-2">
+                <h3 class="text-lg font-semibold text-gray-700">Allgemein</h3>
+                <div class="flex space-x-3">
+                    <PhotoUploadSlot 
+                        :photo="packagingPhoto" 
+                        label="Verpackung" 
+                        @upload="(e) => openCropper(e, 'packaging')" 
+                        @remove="removePhoto('packaging')" 
+                        class="w-24"
+                    />
+                    <PhotoUploadSlot 
+                        :photo="contentPhoto" 
+                        label="Inhalt" 
+                        @upload="(e) => openCropper(e, 'content')" 
+                        @remove="removePhoto('content')" 
+                        class="w-24"
+                    />
+                </div>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <BaseInput v-model="form.name" required label="Produktname" placeholder="z. B. Sprite" />
                 <BaseInput v-model="form.variant" label="Variante" placeholder="z. B. Zero" />
@@ -74,13 +92,30 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 border-t border-gray-200">
                 <BaseInput v-model="form.portion_label" label="Portions-Label (optional)" placeholder="z. B. 1 Glas, 1 Riegel" />
-                <BaseInput v-model="form.portion_amount" type="number" step="0.1" :label="`Portions-Menge in ${form.measurement_unit} (optional)`" placeholder="z. B. 250" />
+                <BaseInput v-model="form.portion_amount" type="number" step="1" :label="`Portions-Menge in ${form.measurement_unit} (optional)`" placeholder="z. B. 250" />
             </div>
         </div>
 
         <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold mb-4 border-b border-gray-200 pb-2 text-gray-700">Nährwerte pro 100 {{
-                form.measurement_unit }}</h3>
+            <div class="flex justify-between items-start mb-4 border-b border-gray-200 pb-2">
+                <h3 class="text-lg font-semibold text-gray-700">Nährwerte pro 100 {{ form.measurement_unit }}</h3>
+                <div class="flex space-x-3">
+                    <PhotoUploadSlot 
+                        :photo="nutritionPhoto" 
+                        label="Nährwert-Tabelle" 
+                        @upload="(e) => openCropper(e, 'nutrition')" 
+                        @remove="removePhoto('nutrition')" 
+                        class="w-24"
+                    />
+                    <PhotoUploadSlot 
+                        :photo="ingredientsPhoto" 
+                        label="Zutatenliste" 
+                        @upload="(e) => openCropper(e, 'ingredients')" 
+                        @remove="removePhoto('ingredients')" 
+                        class="w-24"
+                    />
+                </div>
+            </div>
             <div class="grid grid-cols-2 md:grid-cols-2 gap-3">
                 <BaseInput v-model="form.calories_p100" type="number" required label="Kalorien (kcal)" />
                 <div></div>
@@ -97,7 +132,18 @@
         </div>
 
         <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold mb-4 border-b border-gray-200 pb-2 text-gray-700">Zusätzliche Infos</h3>
+            <div class="flex justify-between items-start mb-4 border-b border-gray-200 pb-2">
+                <h3 class="text-lg font-semibold text-gray-700">Zusätzliche Infos</h3>
+                <div class="flex space-x-3">
+                    <PhotoUploadSlot 
+                        :photo="barcodePhoto" 
+                        label="Barcode" 
+                        @upload="(e) => openCropper(e, 'barcode')" 
+                        @remove="removePhoto('barcode')" 
+                        class="w-24"
+                    />
+                </div>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
                 <BaseInput v-model="form.price" type="number" step="0.01" label="Preis (optional)" placeholder="0.00" />
                 <BaseInput v-model="form.barcode" type="text" label="Barcode (EAN)" placeholder="z. B. 4000000000000" />
@@ -109,63 +155,31 @@
                 </BaseSelect>
                 <BaseInput v-model="form.source_url" type="url" label="Quellen-Link (optional)" placeholder="https://example.com" />
             </div>
-            <div>
+            <div class="mb-5">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Notizen</label>
                 <textarea v-model="form.notes" rows="3"
                     class="block w-full border border-gray-300 rounded-md p-2.5 focus:ring-0 focus:border-gray-400 bg-white"></textarea>
             </div>
-        </div>
-
-        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold mb-4 border-b border-gray-200 pb-2 text-gray-700">Produktbilder</h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div v-for="(photo, index) in existingPhotos" :key="'ex-' + photo.id"
-                    class="relative border border-blue-200 rounded p-3 bg-blue-50/30 flex flex-col items-center group">
-                    <span
-                        class="absolute top-1 left-1 bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Gespeichert</span>
-                    <BaseButton size="none" class="absolute top-1 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs bg-red-100 text-red-600" @click="removeExistingImage(index, photo.id)" title="Bild löschen">
-                        &times;
-                    </BaseButton>
-                    <img :src="`http://localhost:8000/storage/${photo.file_path}`"
-                        class="w-full h-28 object-contain rounded mb-3 mt-3">
-                    <select v-model="photo.type"
-                        class="block w-full text-xs border border-gray-300 rounded p-1.5 bg-white focus:ring-0 focus:border-gray-400">
-                        <option value="front">Vorderseite</option>
-                        <option value="product">Produktbild</option>
-                        <option value="nutrition">Nährwerte</option>
-                        <option value="ingredients">Zutaten</option>
-                        <option value="barcode">Barcode</option>
-                        <option value="general">Allgemein</option>
-                    </select>
+            
+            <div class="border-t border-gray-200 pt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Weitere Fotos (Max. 3)</label>
+                <div class="flex space-x-3 overflow-x-auto pb-2">
+                    <PhotoUploadSlot 
+                        v-for="(photo, index) in otherPhotos" 
+                        :key="photo.id || index"
+                        :photo="photo" 
+                        label="Weiteres" 
+                        @remove="removeOtherPhoto(index)" 
+                        class="w-24 flex-shrink-0"
+                    />
+                    <PhotoUploadSlot 
+                        v-if="otherPhotos.length < 3"
+                        :photo="null" 
+                        label="Weiteres" 
+                        @upload="(e) => openCropper(e, 'other')" 
+                        class="w-24 flex-shrink-0"
+                    />
                 </div>
-
-                <div v-for="(src, index) in newImagePreviews" :key="'new-' + index"
-                    class="relative border border-gray-200 rounded p-3 bg-white flex flex-col items-center group">
-                    <span
-                        class="absolute top-1 left-1 bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Neu</span>
-                    <BaseButton size="none" class="absolute top-1 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-100 text-red-600" @click="removeNewImage(index)" title="Bild löschen">
-                        &times;
-                    </BaseButton>
-                    <img :src="src" class="w-full h-28 object-contain rounded mb-3 mt-3">
-                    <select v-model="newPhotoTypes[index]"
-                        class="block w-full text-xs border border-gray-300 rounded p-1.5 bg-white focus:ring-0 focus:border-gray-400">
-                        <option value="front">Vorderseite</option>
-                        <option value="product">Produktbild</option>
-                        <option value="nutrition">Nährwerte</option>
-                        <option value="ingredients">Zutaten</option>
-                        <option value="barcode">Barcode</option>
-                        <option value="general">Allgemein</option>
-                    </select>
-                </div>
-
-                <label
-                    class="border-2 border-dashed border-gray-300 rounded p-3 bg-white hover:bg-gray-100 hover:border-gray-400 transition-colors flex flex-col items-center justify-center cursor-pointer min-h-[170px]">
-                    <input type="file" accept="image/*" @change="handleSingleFileChange" class="hidden">
-                    <svg class="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span class="text-xs font-medium text-gray-500">Bild hinzufügen</span>
-                </label>
             </div>
         </div>
 
@@ -176,14 +190,43 @@
         </div>
 
     </form>
+
+    <!-- Cropper Modal -->
+    <Teleport to="body">
+        <div v-if="isCropModalOpen" class="fixed inset-0 z-50 bg-black/80 flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-gray-900 text-white">
+                <h3 class="font-semibold text-lg">Bild zuschneiden</h3>
+                <button type="button" @click="cancelCrop" class="text-gray-400 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="flex-grow flex items-center justify-center p-4 overflow-hidden relative">
+                <cropper
+                    ref="cropperRef"
+                    class="h-full w-full max-h-[70vh]"
+                    :src="cropImageUrl"
+                    :stencil-props="{ aspectRatio: 0 }"
+                />
+            </div>
+            <div class="p-4 bg-gray-900 flex justify-end space-x-3">
+                <BaseButton @click="cancelCrop" class="bg-gray-700 text-white hover:bg-gray-600">Abbrechen</BaseButton>
+                <BaseButton @click="confirmCrop" class="bg-blue-600 text-white hover:bg-blue-700">Zuschneiden & Übernehmen</BaseButton>
+            </div>
+        </div>
+    </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import imageCompression from 'browser-image-compression';
+import { Cropper } from 'vue-advanced-cropper';
+import 'vue-advanced-cropper/dist/style.css';
+
 import BaseInput from './BaseInput.vue';
 import BaseSelect from './BaseSelect.vue';
 import AutocompleteInput from './AutocompleteInput.vue';
 import BaseButton from './BaseButton.vue';
+import PhotoUploadSlot from './PhotoUploadSlot.vue';
 
 const props = defineProps<{
     initialData?: any
@@ -250,16 +293,108 @@ const form = ref<FoodForm>({
 });
 
 const brands = ref<any[]>([]);
-
 const mainCategories = ref<any[]>([]);
 const subCategories = ref<any[]>([]);
 
-const existingPhotos = ref<any[]>([]);
+// Photo Slots
+type PhotoSlot = { id?: number, src: string, file?: File, type: string };
+const packagingPhoto = ref<PhotoSlot | null>(null);
+const contentPhoto = ref<PhotoSlot | null>(null);
+const nutritionPhoto = ref<PhotoSlot | null>(null);
+const ingredientsPhoto = ref<PhotoSlot | null>(null);
+const barcodePhoto = ref<PhotoSlot | null>(null);
+const otherPhotos = ref<PhotoSlot[]>([]);
 const deletedPhotoIds = ref<number[]>([]);
 
-const newSelectedFiles = ref<File[]>([]);
-const newImagePreviews = ref<string[]>([]);
-const newPhotoTypes = ref<string[]>([]);
+// Cropper State
+const isCropModalOpen = ref(false);
+const cropImageUrl = ref('');
+const cropTargetType = ref('');
+const cropperRef = ref<any>(null);
+let rawFileBuffer: File | null = null;
+
+const openCropper = (e: Event, type: string) => {
+    const target = e.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+        rawFileBuffer = target.files[0] || null;
+        cropTargetType.value = type;
+        if (rawFileBuffer) {
+            cropImageUrl.value = URL.createObjectURL(rawFileBuffer as Blob);
+        }
+        isCropModalOpen.value = true;
+        target.value = ''; 
+    }
+};
+
+const cancelCrop = () => {
+    isCropModalOpen.value = false;
+    cropImageUrl.value = '';
+    rawFileBuffer = null;
+};
+
+const confirmCrop = () => {
+    if (cropperRef.value) {
+        const { canvas } = cropperRef.value.getResult();
+        if (canvas) {
+            canvas.toBlob(async (blob: Blob | null) => {
+                if (!blob) return;
+                const file = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
+                
+                try {
+                    const compressedFile = await imageCompression(file, { maxSizeMB: 1.5, maxWidthOrHeight: 1920 });
+                    const src = URL.createObjectURL(compressedFile);
+                    const slotData: PhotoSlot = { file: compressedFile, src, type: cropTargetType.value };
+                    
+                    if (cropTargetType.value === 'packaging') setSlot(packagingPhoto, slotData);
+                    else if (cropTargetType.value === 'content') setSlot(contentPhoto, slotData);
+                    else if (cropTargetType.value === 'nutrition') setSlot(nutritionPhoto, slotData);
+                    else if (cropTargetType.value === 'ingredients') setSlot(ingredientsPhoto, slotData);
+                    else if (cropTargetType.value === 'barcode') setSlot(barcodePhoto, slotData);
+                    else if (cropTargetType.value === 'other') otherPhotos.value.push(slotData);
+                } catch (e) {
+                    console.error('Compression failed', e);
+                } finally {
+                    cancelCrop();
+                }
+            }, 'image/jpeg');
+        }
+    }
+};
+
+const setSlot = (refVar: any, newData: PhotoSlot) => {
+    if (refVar.value && refVar.value.id) {
+        deletedPhotoIds.value.push(refVar.value.id);
+    }
+    refVar.value = newData;
+};
+
+const removePhoto = (type: string) => {
+    if (type === 'packaging') {
+        if (packagingPhoto.value?.id) deletedPhotoIds.value.push(packagingPhoto.value.id);
+        packagingPhoto.value = null;
+    } else if (type === 'content') {
+        if (contentPhoto.value?.id) deletedPhotoIds.value.push(contentPhoto.value.id);
+        contentPhoto.value = null;
+    } else if (type === 'nutrition') {
+        if (nutritionPhoto.value?.id) deletedPhotoIds.value.push(nutritionPhoto.value.id);
+        nutritionPhoto.value = null;
+    } else if (type === 'ingredients') {
+        if (ingredientsPhoto.value?.id) deletedPhotoIds.value.push(ingredientsPhoto.value.id);
+        ingredientsPhoto.value = null;
+    } else if (type === 'barcode') {
+        if (barcodePhoto.value?.id) deletedPhotoIds.value.push(barcodePhoto.value.id);
+        barcodePhoto.value = null;
+    }
+};
+
+const removeOtherPhoto = (index: number) => {
+    const photo = otherPhotos.value[index];
+    if (photo && photo.id) {
+        deletedPhotoIds.value.push(photo.id);
+    }
+    otherPhotos.value.splice(index, 1);
+};
+
 
 watch(() => props.initialData, (newData) => {
     if (newData) {
@@ -271,45 +406,67 @@ watch(() => props.initialData, (newData) => {
 
         if (newData.brand) {
             form.value.brand_name = newData.brand.name;
-            if (newData.brand.manufacturer) {
-                form.value.manufacturer_name = newData.brand.manufacturer.name;
-            }
+            form.value.manufacturer_name = newData.brand.manufacturer?.name || '';
         }
 
-        if (newData.main_category) {
-            form.value.main_category_name = newData.main_category.name;
-        }
-
-        if (newData.sub_category) {
-            form.value.sub_category_name = newData.sub_category.name;
-        }
+        if (newData.main_category) form.value.main_category_name = newData.main_category.name;
+        if (newData.sub_category) form.value.sub_category_name = newData.sub_category.name;
 
         if (newData.photos && Array.isArray(newData.photos)) {
-            existingPhotos.value = JSON.parse(JSON.stringify(newData.photos));
+            packagingPhoto.value = null;
+            contentPhoto.value = null;
+            nutritionPhoto.value = null;
+            ingredientsPhoto.value = null;
+            barcodePhoto.value = null;
+            otherPhotos.value = [];
+            
+            newData.photos.forEach((photo: any) => {
+                const slotData = { id: photo.id, src: `http://localhost:8000/storage/${photo.file_path}`, type: photo.type };
+                
+                if (photo.type === 'packaging') {
+                    if (!packagingPhoto.value) packagingPhoto.value = slotData;
+                    else otherPhotos.value.push(slotData);
+                }
+                else if (photo.type === 'content') {
+                    if (!contentPhoto.value) contentPhoto.value = slotData;
+                    else otherPhotos.value.push(slotData);
+                }
+                else if (photo.type === 'nutrition') {
+                    if (!nutritionPhoto.value) nutritionPhoto.value = slotData;
+                    else otherPhotos.value.push(slotData);
+                }
+                else if (photo.type === 'ingredients') {
+                    if (!ingredientsPhoto.value) ingredientsPhoto.value = slotData;
+                    else otherPhotos.value.push(slotData);
+                }
+                else if (photo.type === 'barcode') {
+                    if (!barcodePhoto.value) barcodePhoto.value = slotData;
+                    else otherPhotos.value.push(slotData);
+                }
+                else {
+                    otherPhotos.value.push(slotData);
+                }
+            });
         }
     }
 }, { immediate: true });
 
 const fetchBrands = async () => {
     try {
-        const response = await fetch('http://localhost:8000/api/brands', { credentials: 'include', credentials: 'include' });
+        const response = await fetch('http://localhost:8000/api/brands', { credentials: 'include' });
         brands.value = await response.json();
-    } catch (error) {
-        console.error(error);
-    }
+    } catch (error) { console.error(error); }
 };
 
 const fetchCategories = async () => {
     try {
         const [mainRes, subRes] = await Promise.all([
-            fetch('http://localhost:8000/api/main-categories', { credentials: 'include', credentials: 'include' }),
-            fetch('http://localhost:8000/api/sub-categories', { credentials: 'include', credentials: 'include' })
+            fetch('http://localhost:8000/api/main-categories', { credentials: 'include' }),
+            fetch('http://localhost:8000/api/sub-categories', { credentials: 'include' })
         ]);
         mainCategories.value = await mainRes.json();
         subCategories.value = await subRes.json();
-    } catch (error) {
-        console.error(error);
-    }
+    } catch (error) { console.error(error); }
 };
 
 const filteredMainCategories = computed(() => {
@@ -321,38 +478,24 @@ const filteredMainCategories = computed(() => {
 
 const filteredSubCategories = computed(() => {
     let cats = subCategories.value;
-
     if (form.value.main_category_name) {
         const mainCat = mainCategories.value.find(
             c => c.name.toLowerCase() === form.value.main_category_name.toLowerCase()
         );
-        if (mainCat) {
-            cats = cats.filter(cat => cat.main_category_id === mainCat.id);
-        }
+        if (mainCat) cats = cats.filter(cat => cat.main_category_id === mainCat.id);
     }
-
     if (form.value.sub_category_name) {
-        cats = cats.filter(cat =>
-            cat.name.toLowerCase().includes(form.value.sub_category_name.toLowerCase())
-        );
+        cats = cats.filter(cat => cat.name.toLowerCase().includes(form.value.sub_category_name.toLowerCase()));
     }
-    
     return cats;
 });
 
-const selectMainCategory = (cat: any) => {
-    form.value.main_category_name = cat.name;
-};
-
-const selectSubCategory = (cat: any) => {
-    form.value.sub_category_name = cat.name;
-};
+const selectMainCategory = (cat: any) => form.value.main_category_name = cat.name;
+const selectSubCategory = (cat: any) => form.value.sub_category_name = cat.name;
 
 const filteredBrands = computed(() => {
     if (!form.value.brand_name) return brands.value;
-    return brands.value.filter(brand =>
-        brand.name.toLowerCase().includes(form.value.brand_name.toLowerCase())
-    );
+    return brands.value.filter(brand => brand.name.toLowerCase().includes(form.value.brand_name.toLowerCase()));
 });
 
 const exactBrandMatch = computed(() => {
@@ -373,28 +516,6 @@ const selectBrand = (brand: any) => {
     form.value.manufacturer_name = brand.manufacturer?.name || '';
 };
 
-const handleSingleFileChange = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    if (target.files && target.files.length > 0) {
-        const file = target.files[0];
-        newSelectedFiles.value.push(file);
-        newImagePreviews.value.push(URL.createObjectURL(file));
-        newPhotoTypes.value.push('general');
-        target.value = '';
-    }
-};
-
-const removeNewImage = (index: number) => {
-    newSelectedFiles.value.splice(index, 1);
-    newImagePreviews.value.splice(index, 1);
-    newPhotoTypes.value.splice(index, 1);
-};
-
-const removeExistingImage = (index: number, id: number) => {
-    deletedPhotoIds.value.push(id);
-    existingPhotos.value.splice(index, 1);
-};
-
 onMounted(() => {
     fetchBrands();
     fetchCategories();
@@ -410,19 +531,26 @@ const submitForm = () => {
         }
     });
 
-    newSelectedFiles.value.forEach((file) => {
-        formData.append('photos[]', file);
-    });
-    newPhotoTypes.value.forEach((type) => {
-        formData.append('photo_types[]', type);
+    const allPhotos = [
+        packagingPhoto.value,
+        contentPhoto.value,
+        nutritionPhoto.value,
+        ingredientsPhoto.value,
+        barcodePhoto.value,
+        ...otherPhotos.value
+    ].filter(Boolean) as PhotoSlot[];
+
+    allPhotos.forEach(p => {
+        if (p.file) {
+            formData.append('photos[]', p.file);
+            formData.append('photo_types[]', p.type);
+        } else if (p.id) {
+            formData.append(`existing_photo_types[${p.id}]`, p.type);
+        }
     });
 
     deletedPhotoIds.value.forEach(id => {
         formData.append('deleted_photo_ids[]', String(id));
-    });
-
-    existingPhotos.value.forEach(photo => {
-        formData.append(`existing_photo_types[${photo.id}]`, photo.type);
     });
 
     emit('submit', formData);

@@ -32,8 +32,24 @@
             </td>
           </tr>
           <tr v-else v-for="log in logs" :key="log.id" class="hover:bg-gray-50 transition-colors">
-            <td class="p-3 truncate max-w-[150px] text-gray-900">
-              {{ log.food.name }}
+            <td class="p-3 max-w-[200px]">
+              <div class="flex items-center space-x-3">
+                <div 
+                  v-if="getPrimaryPhoto(log.food)"
+                  class="relative cursor-pointer"
+                  @mousemove="updateMousePos($event)"
+                  @mouseenter="setHoveredImage(`http://localhost:8000/storage/${getPrimaryPhoto(log.food).file_path}`)"
+                  @mouseleave="clearHoveredImage"
+                >
+                  <img :src="`http://localhost:8000/storage/${getPrimaryPhoto(log.food).file_path}`" class="w-10 h-10 object-cover rounded shadow-sm border border-gray-200" />
+                </div>
+                <div v-else class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-300 border border-gray-200 flex-shrink-0">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span class="truncate text-gray-900 font-medium">{{ log.food.name }}</span>
+              </div>
             </td>
             <td class="p-3 truncate text-gray-500 max-w-[120px]">
               {{ log.food.variant || '-' }}
@@ -43,7 +59,7 @@
             </td>
             <td class="p-3 text-right">
               <span @click="editAmount(log)" class="inline-flex items-center px-2 py-0.5 rounded border border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100 hover:border-blue-300 cursor-pointer transition-colors" title="Menge anpassen">
-                {{ log.amount }} {{ log.food.measurement_unit }}
+                {{ Number(log.amount) }} {{ log.food.measurement_unit }}
               </span>
             </td>
             <td class="p-3 text-right text-gray-900 font-medium">{{ formatNutrient(log.food.calories_p100, log.amount, 'kcal') }}</td>
@@ -88,10 +104,38 @@
       </table>
     </div>
   </div>
+
+  <!-- Image Preview Tooltip -->
+  <Teleport to="body">
+    <div 
+      v-if="hoveredImageSrc" 
+      class="fixed z-50 pointer-events-none transform -translate-x-1/2 translate-y-4 bg-white rounded-lg shadow-2xl border-4 border-white overflow-hidden transition-opacity duration-150"
+      :style="{ left: mouseX + 'px', top: mouseY + 'px' }"
+    >
+      <img :src="hoveredImageSrc" class="w-64 h-64 object-contain" />
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
+import { ref } from 'vue'
+
+const hoveredImageSrc = ref<string | null>(null)
+const mouseX = ref(0)
+const mouseY = ref(0)
+
+const setHoveredImage = (src: string) => {
+  hoveredImageSrc.value = src
+}
+
+const clearHoveredImage = () => {
+  hoveredImageSrc.value = null
+}
+
+const updateMousePos = (e: MouseEvent) => {
+  mouseX.value = e.clientX
+  mouseY.value = e.clientY
+}
 
 const props = defineProps<{
   logs: any[]
@@ -102,6 +146,16 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['update-log', 'delete-log', 'add-log'])
+
+const getPrimaryPhoto = (food: any) => {
+  if (!food.photos || !Array.isArray(food.photos) || food.photos.length === 0) {
+    return null
+  }
+  return food.photos.find((p: any) => p.type === 'packaging') 
+    || food.photos.find((p: any) => p.type === 'content')
+    || food.photos.find((p: any) => p.type === 'other') 
+    || food.photos[0]
+}
 
 const formatNutrient = (per100: number, amount: number, unit: string) => {
   if (per100 === null || per100 === undefined || amount === null) return '-'
@@ -128,10 +182,10 @@ const formatTotalNutrient = (nutrientKey: string, unit: string) => {
 }
 
 const editAmount = async (log: any) => {
-  const input = prompt(`Menge für ${log.food.name} anpassen (bisher: ${log.amount} ${log.food.measurement_unit}):`, log.amount)
+  const input = prompt(`Menge für ${log.food.name} anpassen (bisher: ${Number(log.amount)} ${log.food.measurement_unit}):`, Number(log.amount).toString())
   if (input === null) return
 
-  const parsed = parseFloat(input.replace(',', '.'))
+  const parsed = parseInt(input.replace(',', '.'), 10)
   if (isNaN(parsed) || parsed <= 0) {
     alert('Bitte eine gültige Zahl über 0 eingeben.')
     return

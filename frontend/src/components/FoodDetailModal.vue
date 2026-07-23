@@ -179,15 +179,15 @@ const handleDelete = () => {
 const router = useRouter()
 
 const translateType = (type: string) => {
-  const mapping: Record<string, string> = {
-    front: 'Vorderseite',
-    product: 'Produktbild',
+  const typeLabels: Record<string, string> = {
+    packaging: 'Verpackung',
+    content: 'Inhalt (Essen selbst)',
     nutrition: 'Nährwerte',
     ingredients: 'Zutaten',
     barcode: 'Barcode',
-    general: 'Allgemein'
+    other: 'Weiteres'
   }
-  return mapping[type] || type
+  return typeLabels[type] || type
 }
 
 const goToEdit = () => {

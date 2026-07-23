@@ -9,6 +9,7 @@ class Photo extends Model
     protected $fillable = [
         'food_id',
         'file_path',
+        'type',
         'is_primary'
     ];
 

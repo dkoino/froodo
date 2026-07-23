@@ -26,7 +26,7 @@
             <h3 class="text-xl font-bold text-gray-800">Lebensmittel hinzufügen</h3>
             <div class="text-sm text-gray-500 mt-1 flex items-center">
               <span>für den</span>
-              <input type="date" v-model="selectedDateForAdd" :max="getTodayDateStr()" @click="$event.target.showPicker()" @keydown.prevent class="ml-2 px-2 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md text-sm font-medium text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" />
+              <input type="date" v-model="selectedDateForAdd" :max="getTodayDateStr()" @click="($event.target as HTMLInputElement)?.showPicker()" @keydown.prevent class="ml-2 px-2 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md text-sm font-medium text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" />
             </div>
           </div>
           <button type="button" @click="showAddModal = false" class="text-2xl leading-none font-bold text-gray-400 hover:text-gray-600 transition-colors">
@@ -43,9 +43,17 @@
                 <input v-model="searchQuery" type="text" class="block w-full px-4 py-3 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow" placeholder="Suche nach Name, Marke, Barcode..." />
                 
                 <div v-if="searchQuery && filteredAvailableFoods.length > 0" class="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto border border-gray-200 rounded-md shadow-lg bg-white">
-                  <div v-for="food in filteredAvailableFoods.slice(0, 20)" :key="food.id" @click="selectFood(food)" class="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors">
-                    <div class="font-bold text-gray-800">{{ food.name }}</div>
-                    <div class="text-sm text-gray-500 mt-1">{{ food.variant ? food.variant + ' • ' : '' }}{{ food.brand ? food.brand.name : 'Keine Marke' }}</div>
+                  <div v-for="food in filteredAvailableFoods.slice(0, 20)" :key="food.id" @click="selectFood(food)" class="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors flex items-center space-x-3">
+                    <img v-if="getPrimaryPhoto(food)" :src="`http://localhost:8000/storage/${getPrimaryPhoto(food).file_path}`" class="w-10 h-10 object-cover rounded shadow-sm border border-gray-200 flex-shrink-0" />
+                    <div v-else class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-300 border border-gray-200 flex-shrink-0">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-bold text-gray-800">{{ food.name }}</div>
+                      <div class="text-sm text-gray-500 mt-1">{{ food.variant ? food.variant + ' • ' : '' }}{{ food.brand ? food.brand.name : 'Keine Marke' }}</div>
+                    </div>
                   </div>
                 </div>
                 <div v-else-if="searchQuery" class="mt-2 text-sm text-gray-500">
@@ -54,14 +62,22 @@
               </div>
 
               <div v-else class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-md gap-4">
-                <div>
-                  <div class="font-bold text-gray-800">{{ selectedFoodObj?.name }}</div>
-                  <div class="text-sm text-gray-500 mt-1">{{ selectedFoodObj?.variant ? selectedFoodObj.variant + ' • ' : '' }}{{ selectedFoodObj?.brand?.name }}</div>
+                <div class="flex items-start space-x-4">
+                  <img v-if="getPrimaryPhoto(selectedFoodObj)" :src="`http://localhost:8000/storage/${getPrimaryPhoto(selectedFoodObj).file_path}`" class="w-14 h-14 object-cover rounded shadow-sm border border-gray-200 flex-shrink-0" />
+                  <div v-else class="w-14 h-14 bg-gray-100 rounded flex items-center justify-center text-gray-300 border border-gray-200 flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-bold text-gray-800 text-lg">{{ selectedFoodObj?.name }}</div>
+                    <div class="text-sm text-gray-500 mt-1">{{ selectedFoodObj?.variant ? selectedFoodObj.variant + ' • ' : '' }}{{ selectedFoodObj?.brand?.name }}</div>
                   
                   <div class="text-xs text-gray-600 mt-3 p-2 bg-white rounded border border-gray-200 shadow-sm inline-block">
-                    <div><span class="font-semibold text-gray-700">Gesamtmenge:</span> {{ selectedFoodObj?.total_amount }} {{ selectedFoodObj?.measurement_unit }}</div>
-                    <div v-if="selectedFoodObj?.portion_amount" class="mt-1"><span class="font-semibold text-gray-700">Portion ({{ selectedFoodObj.portion_label || 'Stück' }}):</span> {{ selectedFoodObj.portion_amount }} {{ selectedFoodObj.measurement_unit }}</div>
+                    <div><span class="font-semibold text-gray-700">Gesamtmenge:</span> {{ Number(selectedFoodObj?.total_amount) }} {{ selectedFoodObj?.measurement_unit }}</div>
+                    <div v-if="selectedFoodObj?.portion_amount" class="mt-1"><span class="font-semibold text-gray-700">Portion ({{ selectedFoodObj.portion_label || 'Stück' }}):</span> {{ Number(selectedFoodObj.portion_amount) }} {{ selectedFoodObj.measurement_unit }}</div>
                   </div>
+                </div>
                 </div>
                 <button type="button" @click="clearSelection" class="text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors px-3 py-1.5 border border-blue-200 bg-white hover:bg-blue-50 rounded-md">Auswahl ändern</button>
               </div>
@@ -70,7 +86,7 @@
             <div>
               <label class="block text-sm font-bold tracking-wider text-gray-700 uppercase mb-2">Konsumierte Menge</label>
               <div class="relative">
-                <input v-model.number="addForm.amount" type="number" step="0.1" min="0.1" required class="block w-full px-4 py-3 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-gray-800 font-medium" placeholder="z.B. 100" />
+                <input v-model.number="addForm.amount" type="number" step="1" min="1" required class="block w-full px-4 py-3 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-gray-800 font-medium" placeholder="z.B. 100" />
                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                   <span class="text-gray-500 font-medium">{{ selectedFoodUnit || 'g/ml' }}</span>
                 </div>
@@ -106,6 +122,16 @@ const selectedDateForAdd = ref<string | null>(null)
 const getTodayDateStr = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+const getPrimaryPhoto = (food: any) => {
+  if (!food || !food.photos || !Array.isArray(food.photos) || food.photos.length === 0) {
+    return null
+  }
+  return food.photos.find((p: any) => p.type === 'packaging') 
+    || food.photos.find((p: any) => p.type === 'content')
+    || food.photos.find((p: any) => p.type === 'other') 
+    || food.photos[0]
 }
 
 const openAddModal = (dateStr: string) => {
