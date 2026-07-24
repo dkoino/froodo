@@ -10,6 +10,7 @@ class Photo extends Model
         'food_id',
         'file_path',
         'type',
+        'recorded_at',
         'is_primary'
     ];
 

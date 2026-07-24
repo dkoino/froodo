@@ -9,14 +9,14 @@
                         label="Verpackung" 
                         @upload="(e) => openCropper(e, 'packaging')" 
                         @remove="removePhoto('packaging')" 
-                        class="w-24"
+                        class="w-40"
                     />
                     <PhotoUploadSlot 
                         :photo="contentPhoto" 
                         label="Inhalt" 
                         @upload="(e) => openCropper(e, 'content')" 
                         @remove="removePhoto('content')" 
-                        class="w-24"
+                        class="w-40"
                     />
                 </div>
             </div>
@@ -105,19 +105,24 @@
                         label="Nährwert-Tabelle" 
                         @upload="(e) => openCropper(e, 'nutrition')" 
                         @remove="removePhoto('nutrition')" 
-                        class="w-24"
+                        class="w-40"
                     />
                     <PhotoUploadSlot 
                         :photo="ingredientsPhoto" 
                         label="Zutatenliste" 
                         @upload="(e) => openCropper(e, 'ingredients')" 
                         @remove="removePhoto('ingredients')" 
-                        class="w-24"
+                        class="w-40"
                     />
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-2 gap-3">
-                <BaseInput v-model="form.calories_p100" type="number" required label="Kalorien (kcal)" />
+                <div>
+                    <BaseInput v-model="form.calories_p100" type="number" required label="Kalorien (kcal)" />
+                    <p v-if="calorieDiscrepancy" class="text-[10px] text-amber-600 mt-1 leading-tight">
+                        ⚠️ Rechnerisch ca. {{ Math.round(calculatedCalories) }} kcal. Stimmen die Makros?
+                    </p>
+                </div>
                 <div></div>
                 <BaseInput v-model="form.fat_p100" type="number" step="0.1" required label="Fett (g)" />
                 <BaseInput v-model="form.sat_fat_p100" type="number" step="0.1" label="davon gesättigt" />
@@ -140,7 +145,7 @@
                         label="Barcode" 
                         @upload="(e) => openCropper(e, 'barcode')" 
                         @remove="removePhoto('barcode')" 
-                        class="w-24"
+                        class="w-40"
                     />
                 </div>
             </div>
@@ -170,14 +175,14 @@
                         :photo="photo" 
                         label="Weiteres" 
                         @remove="removeOtherPhoto(index)" 
-                        class="w-24 flex-shrink-0"
+                        class="w-40 flex-shrink-0"
                     />
                     <PhotoUploadSlot 
                         v-if="otherPhotos.length < 3"
                         :photo="null" 
                         label="Weiteres" 
                         @upload="(e) => openCropper(e, 'other')" 
-                        class="w-24 flex-shrink-0"
+                        class="w-40 flex-shrink-0"
                     />
                 </div>
             </div>
@@ -208,9 +213,39 @@
                     :stencil-props="{ aspectRatio: 0 }"
                 />
             </div>
-            <div class="p-4 bg-gray-900 flex justify-end space-x-3">
-                <BaseButton @click="cancelCrop" class="bg-gray-700 text-white hover:bg-gray-600">Abbrechen</BaseButton>
-                <BaseButton @click="confirmCrop" class="bg-blue-600 text-white hover:bg-blue-700">Zuschneiden & Übernehmen</BaseButton>
+            <div class="p-4 bg-gray-900 flex justify-between items-center space-x-4">
+                <!-- Feinjustierung (Halten zum Drehen) -->
+                <div class="flex items-center space-x-2">
+                    <BaseButton 
+                        @mousedown.prevent="startRotation(-1)" 
+                        @mouseup.prevent="stopRotation" 
+                        @mouseleave.prevent="stopRotation" 
+                        @touchstart.prevent="startRotation(-1)" 
+                        @touchend.prevent="stopRotation" 
+                        class="bg-gray-800 text-gray-300 hover:text-white border border-gray-700 hover:bg-gray-700 px-3 py-2 text-xs select-none"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                    </BaseButton>
+                    <BaseButton 
+                        @mousedown.prevent="startRotation(1)" 
+                        @mouseup.prevent="stopRotation" 
+                        @mouseleave.prevent="stopRotation" 
+                        @touchstart.prevent="startRotation(1)" 
+                        @touchend.prevent="stopRotation"
+                        class="bg-gray-800 text-gray-300 hover:text-white border border-gray-700 hover:bg-gray-700 px-3 py-2 text-xs select-none"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path></svg>
+                    </BaseButton>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <BaseButton @click="rotate90" class="bg-gray-800 text-gray-300 hover:text-white border border-gray-700 hover:bg-gray-700 flex items-center px-3">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        90°
+                    </BaseButton>
+                    <BaseButton @click="cancelCrop" class="bg-gray-700 text-white hover:bg-gray-600 px-3">Abbrechen</BaseButton>
+                    <BaseButton @click="confirmCrop" class="bg-blue-600 text-white hover:bg-blue-700 px-3">Übernehmen</BaseButton>
+                </div>
             </div>
         </div>
     </Teleport>
@@ -297,7 +332,7 @@ const mainCategories = ref<any[]>([]);
 const subCategories = ref<any[]>([]);
 
 // Photo Slots
-type PhotoSlot = { id?: number, src: string, file?: File, type: string };
+type PhotoSlot = { id?: number, src: string, file?: File, type: string, recorded_at?: string };
 const packagingPhoto = ref<PhotoSlot | null>(null);
 const contentPhoto = ref<PhotoSlot | null>(null);
 const nutritionPhoto = ref<PhotoSlot | null>(null);
@@ -330,6 +365,37 @@ const cancelCrop = () => {
     isCropModalOpen.value = false;
     cropImageUrl.value = '';
     rawFileBuffer = null;
+    stopRotation();
+};
+
+let rotateInterval: any = null;
+
+const startRotation = (degrees: number) => {
+    // Initial step
+    if (cropperRef.value) {
+        cropperRef.value.rotate(degrees);
+    }
+    // Continuous rotation when held
+    if (!rotateInterval) {
+        rotateInterval = setInterval(() => {
+            if (cropperRef.value) {
+                cropperRef.value.rotate(degrees);
+            }
+        }, 50);
+    }
+};
+
+const stopRotation = () => {
+    if (rotateInterval) {
+        clearInterval(rotateInterval);
+        rotateInterval = null;
+    }
+};
+
+const rotate90 = () => {
+    if (cropperRef.value) {
+        cropperRef.value.rotate(90);
+    }
 };
 
 const confirmCrop = () => {
@@ -343,7 +409,12 @@ const confirmCrop = () => {
                 try {
                     const compressedFile = await imageCompression(file, { maxSizeMB: 1.5, maxWidthOrHeight: 1920 });
                     const src = URL.createObjectURL(compressedFile);
-                    const slotData: PhotoSlot = { file: compressedFile, src, type: cropTargetType.value };
+                    const slotData: PhotoSlot = { 
+                        file: compressedFile, 
+                        src, 
+                        type: cropTargetType.value,
+                        recorded_at: new Date().toISOString().split('T')[0]
+                    };
                     
                     if (cropTargetType.value === 'packaging') setSlot(packagingPhoto, slotData);
                     else if (cropTargetType.value === 'content') setSlot(contentPhoto, slotData);
@@ -421,7 +492,7 @@ watch(() => props.initialData, (newData) => {
             otherPhotos.value = [];
             
             newData.photos.forEach((photo: any) => {
-                const slotData = { id: photo.id, src: `http://localhost:8000/storage/${photo.file_path}`, type: photo.type };
+                const slotData = { id: photo.id, src: `http://localhost:8000/storage/${photo.file_path}`, type: photo.type, recorded_at: photo.recorded_at };
                 
                 if (photo.type === 'packaging') {
                     if (!packagingPhoto.value) packagingPhoto.value = slotData;
@@ -503,6 +574,24 @@ const exactBrandMatch = computed(() => {
     return brands.value.find(b => b.name.toLowerCase() === form.value.brand_name.toLowerCase()) || null;
 });
 
+const calculatedCalories = computed(() => {
+    const fat = Number(form.value.fat_p100) || 0;
+    const carbs = Number(form.value.carbs_p100) || 0;
+    const protein = Number(form.value.protein_p100) || 0;
+    return (fat * 9) + (carbs * 4) + (protein * 4);
+});
+
+const calorieDiscrepancy = computed(() => {
+    const declared = Number(form.value.calories_p100);
+    if (!declared || calculatedCalories.value === 0) return false;
+    
+    const diff = Math.abs(declared - calculatedCalories.value);
+    const percentDiff = diff / declared;
+    
+    // Warn if difference is > 10% AND > 10 kcal
+    return percentDiff > 0.10 && diff > 10;
+});
+
 watch(exactBrandMatch, (newBrand) => {
     if (newBrand && newBrand.manufacturer) {
         form.value.manufacturer_name = newBrand.manufacturer.name;
@@ -544,8 +633,10 @@ const submitForm = () => {
         if (p.file) {
             formData.append('photos[]', p.file);
             formData.append('photo_types[]', p.type);
+            formData.append('photo_recorded_at[]', p.recorded_at || '');
         } else if (p.id) {
             formData.append(`existing_photo_types[${p.id}]`, p.type);
+            formData.append(`existing_photo_recorded_at[${p.id}]`, p.recorded_at || '');
         }
     });
 

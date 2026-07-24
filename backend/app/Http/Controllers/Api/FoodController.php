@@ -92,6 +92,7 @@ class FoodController extends Controller
 
         if ($request->hasFile('photos')) {
             $types = $request->input('photo_types', []);
+            $recordedAts = $request->input('photo_recorded_at', []);
             \Log::info('Store photos', ['types' => $types, 'files_count' => count($request->file('photos'))]);
             $files = $request->file('photos');
 
@@ -99,10 +100,12 @@ class FoodController extends Controller
                 if ($file->isValid()) {
                     $path = $file->store('food-photos', 'public');
                     $type = $types[$index] ?? 'other';
+                    $recordedAt = !empty($recordedAts[$index]) ? $recordedAts[$index] : null;
 
                     $food->photos()->create([
                         'file_path' => $path,
                         'type' => $type,
+                        'recorded_at' => $recordedAt,
                     ]);
                 }
             }
@@ -131,8 +134,10 @@ class FoodController extends Controller
     $updateData = $request->except([
         'photos', 
         'photo_types', 
+        'photo_recorded_at',
         'deleted_photo_ids', 
         'existing_photo_types', 
+        'existing_photo_recorded_at',
         '_method',
         'main_category_name',
         'sub_category_name',
@@ -196,24 +201,32 @@ class FoodController extends Controller
     }
 
     if ($request->has('existing_photo_types')) {
+        $existingRecordedAts = $request->input('existing_photo_recorded_at', []);
         foreach ($request->input('existing_photo_types') as $photoId => $newType) {
-            $food->photos()->where('id', $photoId)->update(['type' => $newType]);
+            $recordedAt = !empty($existingRecordedAts[$photoId]) ? $existingRecordedAts[$photoId] : null;
+            $food->photos()->where('id', $photoId)->update([
+                'type' => $newType,
+                'recorded_at' => $recordedAt
+            ]);
         }
     }
 
     if ($request->hasFile('photos')) {
         $types = $request->input('photo_types', []);
+        $recordedAts = $request->input('photo_recorded_at', []);
         \Log::info('Update photos received:', ['types' => $types, 'files_count' => count($request->file('photos'))]);
         
         foreach ($request->file('photos') as $index => $file) {
             if ($file->isValid()) {
                 $path = $file->store('food-photos', 'public');
                 $type = $types[$index] ?? 'other';
+                $recordedAt = !empty($recordedAts[$index]) ? $recordedAts[$index] : null;
                 \Log::info("Mapping photo {$index} to type: {$type}");
                 
                 $food->photos()->create([
                     'file_path' => $path,
                     'type'      => $type,
+                    'recorded_at' => $recordedAt,
                 ]);
             }
         }

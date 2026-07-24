@@ -11,7 +11,12 @@
       </button>
       
       <img :src="photo.src" class="w-full h-24 object-contain rounded mt-2">
-      <div class="mt-2 text-xs font-semibold text-gray-700">{{ label }}</div>
+      <div class="mt-2 text-xs font-semibold text-gray-700 w-full text-center">{{ label }}</div>
+      
+      <!-- Datumsfeld -->
+      <div class="w-full mt-2 relative">
+        <input type="date" v-model="photo.recorded_at" class="w-full text-[10px] border border-gray-300 rounded px-1 py-1 text-gray-700 focus:outline-none focus:border-blue-400" title="Aufnahmedatum" />
+      </div>
     </template>
     
     <template v-else>
