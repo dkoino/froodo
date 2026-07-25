@@ -163,18 +163,18 @@
           </div>
         </div>
 
-        <div v-if="displayFood.user" class="text-xs text-gray-400 text-right pt-4 border-t border-gray-100 italic space-y-1">
+        <div v-if="displayFood.creator" class="text-xs text-gray-400 text-right pt-4 border-t border-gray-100 italic space-y-1">
           <div>
             Angelegt von
-            <span class="cursor-pointer hover:text-gray-600 transition-colors" @click="emitSearch('Nutzer', displayFood.user.name)">
-              {{ displayFood.user.name }}
+            <span class="cursor-pointer hover:text-gray-600 transition-colors" @click="emitSearch('Nutzer', displayFood.creator.name)">
+              {{ displayFood.creator.name }}
             </span>
             am {{ formatDate(displayFood.created_at) }}
           </div>
-          <div v-if="displayFood.updated_at">
+          <div v-if="displayFood.updated_at && displayFood.updater">
             Zuletzt geändert von
-            <span class="cursor-pointer hover:text-gray-600 transition-colors" @click="emitSearch('Nutzer', displayFood.user.name)">
-              {{ displayFood.user.name }}
+            <span class="cursor-pointer hover:text-gray-600 transition-colors" @click="emitSearch('Nutzer', displayFood.updater.name)">
+              {{ displayFood.updater.name }}
             </span>
             am {{ formatDate(displayFood.updated_at) }}
           </div>

@@ -37,8 +37,18 @@ class Food extends Model
         'notes',
         'source_type',
         'source_url',
-        'user_id'
+        'created_by',
+        'updated_by'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->updated_at = null;
+        });
+    }
 
     public function mainCategory()
     {
@@ -59,8 +69,13 @@ class Food extends Model
         return $this->hasMany(Photo::class);
     }
 
-    public function user()
+    public function creator()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

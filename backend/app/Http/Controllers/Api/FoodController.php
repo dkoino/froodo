@@ -11,7 +11,7 @@ class FoodController extends Controller
 {
     public function index()
     {
-        return response()->json(Food::with(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory', 'user'])->get());
+        return response()->json(Food::with(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory', 'creator', 'updater'])->get());
     }
 
     public function store(Request $request)
@@ -85,8 +85,11 @@ class FoodController extends Controller
         $data['brand_id'] = $brandId;
         unset($data['brand_name']);
         unset($data['manufacturer_name']);
-
-        $data['user_id'] = auth()->id();
+        
+        if (!isset($data['source_type']) || $data['source_type'] === '') {
+            $data['source_type'] = 'Verpackung';
+        }
+        $data['created_by'] = auth()->id();
 
         $food = Food::create($data);
 
@@ -124,7 +127,7 @@ class FoodController extends Controller
     
     public function show($id)
     {
-        return response()->json(Food::with(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory', 'user'])->findOrFail($id));
+        return response()->json(Food::with(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory', 'creator', 'updater'])->findOrFail($id));
     }
 
     public function update(Request $request, $id)
@@ -185,6 +188,8 @@ class FoodController extends Controller
         $brandId = $brand->id;
     }
     $updateData['brand_id'] = $brandId;
+
+    $updateData['updated_by'] = auth()->id();
 
     $food->update($updateData);
 

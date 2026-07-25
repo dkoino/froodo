@@ -182,7 +182,7 @@ const filteredFoods = computed(() => {
           return (food.notes || '').toLowerCase().includes(searchTerm)
         }
         if (['nutzer', 'user'].includes(prefix)) {
-          return (food.user?.name || '').toLowerCase().includes(searchTerm)
+          return (food.creator?.name || '').toLowerCase().includes(searchTerm)
         }
         isKnownPrefix = false
         return false
@@ -204,7 +204,7 @@ const filteredFoods = computed(() => {
       (food.brand?.manufacturer?.name || '').toLowerCase().includes(query) ||
       (food.main_category?.name || '').toLowerCase().includes(query) ||
       (food.sub_category?.name || '').toLowerCase().includes(query) ||
-      (food.user?.name || '').toLowerCase().includes(query)
+      (food.creator?.name || '').toLowerCase().includes(query)
     )
   })
 })

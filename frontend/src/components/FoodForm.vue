@@ -75,7 +75,8 @@
                     <option value="Fisch">Fisch</option>
                     <option value="Gemischt">Gemischt</option>
                     <option value="Anderes">Anderes</option>
-                    <option value="Nein">Nein (Vegetarisch/Vegan)</option>
+                    <option value="Kein Fleisch">Kein Fleisch</option>
+                    <option value="Vegan">Vegan</option>
                 </BaseSelect>
                 <BaseInput v-model="form.state" label="Zustand (optional)" placeholder="z. B. tiefgefroren, frisch" />
             </div>
@@ -276,7 +277,7 @@ interface FoodForm {
     manufacturer_name: string;
     main_category_name: string;
     sub_category_name: string;
-    meat_type: 'Schwein' | 'Hähnchen' | 'Pute' | 'Ente' | 'Rind' | 'Fisch' | 'Gemischt' | 'Anderes' | 'Nein' | 'Unbekannt';
+    meat_type: 'Schwein' | 'Hähnchen' | 'Pute' | 'Ente' | 'Rind' | 'Fisch' | 'Gemischt' | 'Anderes' | 'Kein Fleisch' | 'Vegan' | 'Unbekannt';
     state: string;
     name: string;
     variant: string;
