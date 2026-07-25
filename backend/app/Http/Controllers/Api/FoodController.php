@@ -237,6 +237,6 @@ class FoodController extends Controller
         }
     }
 
-    return response()->json($food->load(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory', 'user']), 200);
+    return response()->json($food->load(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory', 'creator', 'updater']), 200);
     }
 }
