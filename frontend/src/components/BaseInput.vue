@@ -2,7 +2,7 @@
     <div>
         <label v-if="label" :class="[
             'block text-sm mb-1',
-            required ? 'font-semibold text-gray' : 'font-medium text-gray-500',
+            required ? 'font-bold text-gray-900' : 'font-normal text-gray-400',
             labelClass
         ]">
             {{ label }}

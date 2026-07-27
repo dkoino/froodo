@@ -1,189 +1,257 @@
 <template>
     <form @submit.prevent="submitForm" class="space-y-6">
         <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <div class="flex justify-between items-start mb-4 border-b border-gray-200 pb-2">
-                <h3 class="text-lg font-semibold text-gray-700">Allgemein</h3>
-                <div class="flex space-x-3">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b border-gray-200 pb-2">Allgemein</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Links: Eingabefelder -->
+                <div class="space-y-4">
+                    <div class="space-y-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        <BaseInput v-model="form.name" required label="Produktname" placeholder="z. B. Sprite" />
+                        <BaseInput v-model="form.variant" label="Variante" placeholder="z. B. Zero" />
+                    </div>
+
+                    <div class="space-y-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        <AutocompleteInput
+                            v-model="form.brand_name"
+                            :items="filteredBrands"
+                            label="Marke"
+                            placeholder="Marke suchen..."
+                            @select="selectBrand"
+                        >
+                            <template #item="{ item }">
+                                {{ item.name }} <span v-if="item.manufacturer" class="text-xs text-gray-500">({{ item.manufacturer.name }})</span>
+                            </template>
+                            <template #feedback>
+                                <p v-if="exactBrandMatch" class="text-xs text-green-600 mt-1 flex items-center">
+                                    ✓ Marke vorhanden
+                                </p>
+                                <p v-else-if="form.brand_name" class="text-xs text-amber-600 mt-1 flex items-center">
+                                    + Neue Marke wird angelegt
+                                </p>
+                            </template>
+                        </AutocompleteInput>
+                        
+                        <AutocompleteInput
+                            v-model="form.manufacturer_name"
+                            :items="filteredManufacturers"
+                            label="Hersteller"
+                            :disabled="!!exactBrandMatch"
+                            :placeholder="exactBrandMatch ? 'Wird durch Marke bestimmt' : 'Hersteller suchen...'"
+                            @select="selectManufacturer"
+                        >
+                            <template #item="{ item }">
+                                {{ item.name }}
+                            </template>
+                            <template #feedback>
+                                <p v-if="exactManufacturerMatch" class="text-xs text-green-600 mt-1 flex items-center">
+                                    ✓ Hersteller vorhanden
+                                </p>
+                                <p v-else-if="form.manufacturer_name && !exactBrandMatch" class="text-xs text-amber-600 mt-1 flex items-center">
+                                    + Neuer Hersteller wird angelegt
+                                </p>
+                            </template>
+                        </AutocompleteInput>
+                    </div>
+                </div>
+
+                <!-- Rechts: Foto Upload -->
+                <div class="flex items-start justify-center pt-2">
                     <PhotoUploadSlot 
                         :photo="packagingPhoto" 
                         label="Verpackung" 
                         @upload="(e) => openCropper(e, 'packaging')" 
                         @remove="removePhoto('packaging')" 
-                        class="w-40"
-                    />
-                    <PhotoUploadSlot 
-                        :photo="contentPhoto" 
-                        label="Inhalt" 
-                        @upload="(e) => openCropper(e, 'content')" 
-                        @remove="removePhoto('content')" 
-                        class="w-40"
+                        class="w-80 max-w-full"
                     />
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <BaseInput v-model="form.name" required label="Produktname" placeholder="z. B. Sprite" />
-                <BaseInput v-model="form.variant" label="Variante" placeholder="z. B. Zero" />
+        </div>
 
-                <AutocompleteInput
-                    v-model="form.brand_name"
-                    :items="filteredBrands"
-                    label="Marke"
-                    placeholder="Marke suchen..."
-                    @select="selectBrand"
-                >
-                <template #item="{ item }">
-                    {{ item.name }} <span v-if="item.manufacturer" class="text-xs text-gray-500">({{ item.manufacturer.name }})</span>
-                </template>
-                <template #feedback>
-                    <p v-if="exactBrandMatch" class="text-xs text-green-600 mt-1 flex items-center">
-                        ✓ Marke vorhanden
-                    </p>
-                    <p v-else-if="form.brand_name" class="text-xs text-amber-600 mt-1 flex items-center">
-                        + Neue Marke wird angelegt
-                    </p>
-                </template>
-            </AutocompleteInput>
+        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b border-gray-200 pb-2">Kategorisierung & Zutaten</h3>
             
-            <BaseInput 
-                v-model="form.manufacturer_name" 
-                label="Hersteller" 
-                :disabled="!!exactBrandMatch"
-                :placeholder="exactBrandMatch ? 'Wird durch Marke bestimmt' : 'Hersteller (Optional)'" 
-            />
-                <AutocompleteInput
-                    v-model="form.main_category_name"
-                    :items="filteredMainCategories"
-                    label="Hauptkategorie"
-                    placeholder="z. B. Milchprodukt"
-                    @select="selectMainCategory"
-                />
-                <AutocompleteInput
-                    v-model="form.sub_category_name"
-                    :items="filteredSubCategories"
-                    label="Unterkategorie (optional)"
-                    placeholder="z. B. Käse"
-                    @select="selectSubCategory"
-                />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Links: Eingabefelder -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        <AutocompleteInput
+                            v-model="form.main_category_name"
+                            :items="filteredMainCategories"
+                            label="Hauptkategorie"
+                            placeholder="z. B. Milchprodukt"
+                            @select="selectMainCategory"
+                        />
+                        <AutocompleteInput
+                            v-model="form.sub_category_name"
+                            :items="filteredSubCategories"
+                            label="Unterkategorie"
+                            placeholder="z. B. Käse"
+                            @select="selectSubCategory"
+                        />
+                    </div>
 
-                <BaseSelect v-model="form.meat_type" label="Fleischsorte">
-                    <option value="Unbekannt">Unbekannt</option>
-                    <option value="Schwein">Schwein</option>
-                    <option value="Hähnchen">Hähnchen</option>
-                    <option value="Pute">Pute</option>
-                    <option value="Ente">Ente</option>
-                    <option value="Rind">Rind</option>
-                    <option value="Fisch">Fisch</option>
-                    <option value="Gemischt">Gemischt</option>
-                    <option value="Anderes">Anderes</option>
-                    <option value="Kein Fleisch">Kein Fleisch</option>
-                    <option value="Vegan">Vegan</option>
-                </BaseSelect>
-                <BaseInput v-model="form.state" label="Zustand (optional)" placeholder="z. B. tiefgefroren, frisch" />
-            </div>
-        </div>
+                    <div class="space-y-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        <BaseSelect v-model="form.meat_type" label="Fleischsorte">
+                            <option value="Unbekannt">Unbekannt</option>
+                            <option value="Schwein">Schwein</option>
+                            <option value="Hähnchen">Hähnchen</option>
+                            <option value="Pute">Pute</option>
+                            <option value="Ente">Ente</option>
+                            <option value="Rind">Rind</option>
+                            <option value="Fisch">Fisch</option>
+                            <option value="Gemischt">Gemischt</option>
+                            <option value="Anderes">Anderes</option>
+                            <option value="Kein Fleisch">Kein Fleisch</option>
+                            <option value="Vegan">Vegan</option>
+                        </BaseSelect>
+                        <BaseInput v-model="form.state" label="Zustand" placeholder="z. B. tiefgefroren, frisch" />
+                    </div>
+                </div>
 
-        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold mb-4 border-b border-gray-200 pb-2 text-gray-700">Menge & Portion</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-                <BaseInput v-model="form.total_amount" type="number" required label="Gesamtmenge" placeholder="z. B. 500" />
-                <BaseSelect v-model="form.measurement_unit" required label="Basis-Einheit">
-                    <option value="g">Gramm (g)</option>
-                    <option value="ml">Milliliter (ml)</option>
-                </BaseSelect>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 border-t border-gray-200">
-                <BaseInput v-model="form.portion_label" label="Portions-Label (optional)" placeholder="z. B. 1 Glas, 1 Riegel" />
-                <BaseInput v-model="form.portion_amount" type="number" step="1" :label="`Portions-Menge in ${form.measurement_unit} (optional)`" placeholder="z. B. 250" />
-            </div>
-        </div>
-
-        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <div class="flex justify-between items-start mb-4 border-b border-gray-200 pb-2">
-                <h3 class="text-lg font-semibold text-gray-700">Nährwerte pro 100 {{ form.measurement_unit }}</h3>
-                <div class="flex space-x-3">
-                    <PhotoUploadSlot 
-                        :photo="nutritionPhoto" 
-                        label="Nährwert-Tabelle" 
-                        @upload="(e) => openCropper(e, 'nutrition')" 
-                        @remove="removePhoto('nutrition')" 
-                        class="w-40"
-                    />
+                <!-- Rechts: Foto Upload -->
+                <div class="flex items-start justify-center pt-2">
                     <PhotoUploadSlot 
                         :photo="ingredientsPhoto" 
                         label="Zutatenliste" 
                         @upload="(e) => openCropper(e, 'ingredients')" 
                         @remove="removePhoto('ingredients')" 
-                        class="w-40"
+                        class="w-80 max-w-full"
                     />
                 </div>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-2 gap-3">
-                <div>
-                    <BaseInput v-model="form.calories_p100" type="number" required label="Kalorien (kcal)" />
-                    <p v-if="calorieDiscrepancy" class="text-[10px] text-amber-600 mt-1 leading-tight">
-                        ⚠️ Rechnerisch ca. {{ Math.round(calculatedCalories) }} kcal. Stimmen die Makros?
-                    </p>
-                </div>
-                <div></div>
-                <BaseInput v-model="form.fat_p100" type="number" step="0.1" required label="Fett (g)" />
-                <BaseInput v-model="form.sat_fat_p100" type="number" step="0.1" label="davon gesättigt" />
-                <BaseInput v-model="form.carbs_p100" type="number" step="0.1" required label="Kohlenhydrate (g)" />
-                <BaseInput v-model="form.sugar_p100" type="number" step="0.1" label="davon Zucker" />
-                <BaseInput v-model="form.fiber_p100" type="number" step="0.1" label="Ballaststoffe" />
-                <div></div>
-                <BaseInput v-model="form.protein_p100" type="number" step="0.1" required label="Protein (g)" />
-                <div></div>
-                <BaseInput v-model="form.salt_p100" type="number" step="0.1" label="Salz (g)" />
             </div>
         </div>
 
         <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <div class="flex justify-between items-start mb-4 border-b border-gray-200 pb-2">
-                <h3 class="text-lg font-semibold text-gray-700">Zusätzliche Infos</h3>
-                <div class="flex space-x-3">
+            <h3 class="text-lg font-semibold mb-4 border-b border-gray-200 pb-2 text-gray-700">Menge & Portion</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Links: Eingabefelder -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        <BaseInput v-model="form.total_amount" type="number" required label="Gesamtmenge" placeholder="z. B. 500" />
+                        <BaseSelect v-model="form.measurement_unit" required label="Basis-Einheit">
+                            <option value="g">Gramm (g)</option>
+                            <option value="ml">Milliliter (ml)</option>
+                        </BaseSelect>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        <BaseInput v-model="form.portion_label" label="Portions-Label" placeholder="z. B. 1 Glas, 1 Riegel" />
+                        <BaseInput v-model="form.portion_amount" type="number" step="1" :label="`Portions-Menge in ${form.measurement_unit}`" placeholder="z. B. 250" />
+                    </div>
+                </div>
+
+                <!-- Rechts: Foto Upload -->
+                <div class="flex items-start justify-center pt-2">
+                    <PhotoUploadSlot 
+                        :photo="contentPhoto" 
+                        label="Essen selbst" 
+                        @upload="(e) => openCropper(e, 'content')" 
+                        @remove="removePhoto('content')" 
+                        class="w-80 max-w-full"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b border-gray-200 pb-2">Nährwerte pro 100 {{ form.measurement_unit }}</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Links: Eingabefelder (Viertelgröße) -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        <div class="col-span-2 sm:col-span-1">
+                            <BaseInput v-model="form.calories_p100" type="number" required label="Kalorien (kcal)" />
+                            <p v-if="calorieDiscrepancy" class="text-[10px] text-amber-600 mt-1 leading-tight">
+                                ⚠️ Rechnerisch ca. {{ Math.round(calculatedCalories) }} kcal. Stimmen die Makros?
+                            </p>
+                        </div>
+                        <div class="hidden sm:block"></div>
+                        
+                        <BaseInput v-model="form.fat_p100" type="number" step="0.1" required label="Fett (g)" />
+                        <BaseInput v-model="form.sat_fat_p100" type="number" step="0.1" label="davon gesättigt" />
+                        
+                        <BaseInput v-model="form.carbs_p100" type="number" step="0.1" required label="Kohlenhydrate (g)" />
+                        <BaseInput v-model="form.sugar_p100" type="number" step="0.1" label="davon Zucker" />
+                        
+                        <BaseInput v-model="form.protein_p100" type="number" step="0.1" required label="Protein (g)" />
+                        <BaseInput v-model="form.fiber_p100" type="number" step="0.1" label="Ballaststoffe" />
+                        
+                        <BaseInput v-model="form.salt_p100" type="number" step="0.1" label="Salz (g)" />
+                    </div>
+                </div>
+
+                <!-- Rechts: Foto Upload -->
+                <div class="flex items-start justify-center pt-2">
+                    <PhotoUploadSlot 
+                        :photo="nutritionPhoto" 
+                        label="Nährwert-Tabelle" 
+                        @upload="(e) => openCropper(e, 'nutrition')" 
+                        @remove="removePhoto('nutrition')" 
+                        class="w-80 max-w-full"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b border-gray-200 pb-2">Zusätzliche Informationen</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Links: Eingabefelder -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        <BaseInput v-model="form.price" type="number" step="0.01" label="Preis" placeholder="0.00" />
+                        <BaseInput v-model="form.barcode" type="text" label="Barcode (EAN)" placeholder="z. B. 4000000000000" />
+                        
+                        <BaseSelect v-model="form.source_type" required label="Datenquelle">
+                            <option value="Verpackung">Verpackung</option>
+                            <option value="Herstellerseite">Herstellerseite</option>
+                            <option value="Datenbank">Andere Food-Datenbank</option>
+                            <option value="Sonstiges">Sonstiges</option>
+                        </BaseSelect>
+                        <BaseInput v-model="form.source_url" type="url" label="Quellen-Link" placeholder="https://example.com" />
+                        
+                        <div class="col-span-2 mt-2 flex flex-col xl:flex-row gap-4 items-start">
+                            <div class="flex-1 w-full">
+                                <label class="block text-sm mb-1 font-normal text-gray-400">Notizen</label>
+                                <textarea v-model="form.notes" rows="4"
+                                    class="block w-full border border-gray-300 rounded-md p-2.5 focus:ring-0 focus:border-gray-400 bg-white h-[104px]"></textarea>
+                            </div>
+
+                            <div class="flex-shrink-0">
+                                <label class="block text-sm font-normal text-gray-400 mb-1 text-center">Weitere Fotos (Max. 3)</label>
+                                <div class="flex gap-2 flex-wrap max-w-[200px] justify-center">
+                                    <PhotoUploadSlot 
+                                        v-for="(photo, index) in otherPhotos" 
+                                        :key="photo.id || index"
+                                        :photo="photo" 
+                                        label="Weiteres" 
+                                        @remove="removeOtherPhoto(index)" 
+                                        class="w-24 max-w-full"
+                                    />
+                                    <PhotoUploadSlot 
+                                        v-if="otherPhotos.length < 3"
+                                        :photo="null" 
+                                        label="Weiteres" 
+                                        @upload="(e) => openCropper(e, 'other')" 
+                                        class="w-24 max-w-full"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rechts: Foto Upload -->
+                <div class="flex items-start justify-center pt-2">
                     <PhotoUploadSlot 
                         :photo="barcodePhoto" 
                         label="Barcode" 
                         @upload="(e) => openCropper(e, 'barcode')" 
                         @remove="removePhoto('barcode')" 
-                        class="w-40"
-                    />
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-                <BaseInput v-model="form.price" type="number" step="0.01" label="Preis (optional)" placeholder="0.00" />
-                <BaseInput v-model="form.barcode" type="text" label="Barcode (EAN)" placeholder="z. B. 4000000000000" />
-                <BaseSelect v-model="form.source_type" required label="Datenquelle">
-                    <option value="Verpackung">Verpackung</option>
-                    <option value="Herstellerseite">Herstellerseite</option>
-                    <option value="Datenbank">Andere Food-Datenbank</option>
-                    <option value="Sonstiges">Sonstiges</option>
-                </BaseSelect>
-                <BaseInput v-model="form.source_url" type="url" label="Quellen-Link (optional)" placeholder="https://example.com" />
-            </div>
-            <div class="mb-5">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Notizen</label>
-                <textarea v-model="form.notes" rows="3"
-                    class="block w-full border border-gray-300 rounded-md p-2.5 focus:ring-0 focus:border-gray-400 bg-white"></textarea>
-            </div>
-            
-            <div class="border-t border-gray-200 pt-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Weitere Fotos (Max. 3)</label>
-                <div class="flex space-x-3 overflow-x-auto pb-2">
-                    <PhotoUploadSlot 
-                        v-for="(photo, index) in otherPhotos" 
-                        :key="photo.id || index"
-                        :photo="photo" 
-                        label="Weiteres" 
-                        @remove="removeOtherPhoto(index)" 
-                        class="w-40 flex-shrink-0"
-                    />
-                    <PhotoUploadSlot 
-                        v-if="otherPhotos.length < 3"
-                        :photo="null" 
-                        label="Weiteres" 
-                        @upload="(e) => openCropper(e, 'other')" 
-                        class="w-40 flex-shrink-0"
+                        class="w-80 max-w-full"
                     />
                 </div>
             </div>
@@ -329,6 +397,7 @@ const form = ref<FoodForm>({
 });
 
 const brands = ref<any[]>([]);
+const manufacturers = ref<any[]>([]);
 const mainCategories = ref<any[]>([]);
 const subCategories = ref<any[]>([]);
 
@@ -530,6 +599,13 @@ const fetchBrands = async () => {
     } catch (error) { console.error(error); }
 };
 
+const fetchManufacturers = async () => {
+    try {
+        const response = await fetch('http://localhost:8000/api/manufacturers', { credentials: 'include' });
+        manufacturers.value = await response.json();
+    } catch (error) { console.error(error); }
+};
+
 const fetchCategories = async () => {
     try {
         const [mainRes, subRes] = await Promise.all([
@@ -575,6 +651,16 @@ const exactBrandMatch = computed(() => {
     return brands.value.find(b => b.name.toLowerCase() === form.value.brand_name.toLowerCase()) || null;
 });
 
+const filteredManufacturers = computed(() => {
+    if (!form.value.manufacturer_name) return manufacturers.value;
+    return manufacturers.value.filter(m => m.name.toLowerCase().includes(form.value.manufacturer_name.toLowerCase()));
+});
+
+const exactManufacturerMatch = computed(() => {
+    if (!form.value.manufacturer_name) return null;
+    return manufacturers.value.find(m => m.name.toLowerCase() === form.value.manufacturer_name.toLowerCase()) || null;
+});
+
 const calculatedCalories = computed(() => {
     const fat = Number(form.value.fat_p100) || 0;
     const carbs = Number(form.value.carbs_p100) || 0;
@@ -589,8 +675,8 @@ const calorieDiscrepancy = computed(() => {
     const diff = Math.abs(declared - calculatedCalories.value);
     const percentDiff = diff / declared;
     
-    // Warn if difference is > 10% AND > 10 kcal
-    return percentDiff > 0.10 && diff > 10;
+    // Warn if difference is > 2% AND > 10 kcal
+    return percentDiff > 0.02 && diff > 10;
 });
 
 watch(exactBrandMatch, (newBrand) => {
@@ -606,8 +692,13 @@ const selectBrand = (brand: any) => {
     form.value.manufacturer_name = brand.manufacturer?.name || '';
 };
 
+const selectManufacturer = (m: any) => {
+    form.value.manufacturer_name = m.name;
+};
+
 onMounted(() => {
     fetchBrands();
+    fetchManufacturers();
     fetchCategories();
 });
 

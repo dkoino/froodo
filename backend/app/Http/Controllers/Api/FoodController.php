@@ -120,6 +120,11 @@ class FoodController extends Controller
     public function destroy($id)
     {
         $food = \App\Models\Food::findOrFail($id);
+        
+        if (!auth()->user()->is_admin && $food->created_by !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
         $food->delete();
 
         return response()->json(null, 204);
@@ -133,6 +138,10 @@ class FoodController extends Controller
     public function update(Request $request, $id)
 {
     $food = Food::findOrFail($id);
+
+    if (!auth()->user()->is_admin && $food->created_by !== auth()->id()) {
+        return response()->json(['message' => 'Unauthorized.'], 403);
+    }
 
     $updateData = $request->except([
         'photos', 

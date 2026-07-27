@@ -23,6 +23,13 @@
         <BaseInput v-model="form.password_confirmation" type="password" />
       </div>
 
+      <div class="flex items-center mt-4">
+        <input id="is_admin" v-model="form.is_admin" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+        <label for="is_admin" class="ml-2 block text-sm text-gray-900">
+          Administrator Rechte
+        </label>
+      </div>
+
       <div class="pt-4 flex justify-end gap-3">
         <BaseButton type="button" class="bg-gray-100 text-gray-700 border border-gray-300 shadow-sm" @click="router.push('/users')">
           Abbrechen
@@ -53,7 +60,8 @@ const form = ref({
   name: '',
   email: '',
   password: '',
-  password_confirmation: ''
+  password_confirmation: '',
+  is_admin: false
 })
 
 const fetchUser = async () => {
@@ -63,6 +71,7 @@ const fetchUser = async () => {
     const user = data.data || data
     form.value.name = user.name
     form.value.email = user.email
+    form.value.is_admin = !!user.is_admin
     loaded.value = true
   } catch (error) {
     console.error('Fehler beim Laden:', error)
@@ -75,7 +84,8 @@ const submit = async () => {
   try {
     const payload: any = {
       name: form.value.name,
-      email: form.value.email
+      email: form.value.email,
+      is_admin: form.value.is_admin
     }
     if (form.value.password) {
       payload.password = form.value.password

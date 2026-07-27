@@ -10,10 +10,17 @@ import LoginView from '../views/LoginView.vue'
 import FoodLogView from '../views/FoodLogView.vue'
 
 import FoodLogHistoryView from '../views/FoodLogHistoryView.vue'
+import HomeView from '../views/HomeView.vue'
+import RegisterView from '../views/RegisterView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView
+    },
     {
       path: '/foods',
       name: 'foods.index',
@@ -63,6 +70,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView
     }
   ]
 })

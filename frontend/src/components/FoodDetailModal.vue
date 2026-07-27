@@ -182,11 +182,13 @@
       </div>
 
       <div class="px-6 py-4 border-t border-gray-100 flex justify-between space-x-3 bg-gray-50 sticky bottom-0">
-        <BaseButton class="bg-red-600 text-white shadow-sm rounded-md" @click="handleDelete">
-          Löschen
-        </BaseButton>
+        <div>
+          <BaseButton v-if="canEditOrDelete" class="bg-red-600 text-white shadow-sm rounded-md" @click="handleDelete">
+            Löschen
+          </BaseButton>
+        </div>
         <div class="flex space-x-3">
-          <BaseButton class="bg-amber-600 text-white shadow-sm rounded-md" @click="goToEdit">
+          <BaseButton v-if="canEditOrDelete" class="bg-amber-600 text-white shadow-sm rounded-md" @click="goToEdit">
             Bearbeiten
           </BaseButton>
           <BaseButton class="bg-white text-gray-700 border border-gray-300 shadow-sm rounded-md" @click="$emit('close')">
@@ -213,12 +215,35 @@ const emit = defineEmits(['close', 'delete', 'search'])
 
 const fetchedFood = ref<any>(null)
 const loading = ref(false)
+const currentUser = ref<any>(null)
+
+const fetchCurrentUser = async () => {
+  try {
+    const response = await fetch('http://localhost:8000/api/me', {
+      credentials: 'include',
+      headers: { 'Accept': 'application/json' }
+    })
+    if (response.ok) {
+      currentUser.value = await response.json()
+    } else {
+      currentUser.value = null
+    }
+  } catch (e) {
+    currentUser.value = null
+  }
+}
 
 const displayFood = computed(() => fetchedFood.value || props.food)
 
 const generalPhotos = computed(() => displayFood.value?.photos?.filter((p: any) => p.type === 'packaging' || p.type === 'content') || [])
 const nutritionPhotos = computed(() => displayFood.value?.photos?.filter((p: any) => p.type === 'nutrition' || p.type === 'ingredients') || [])
 const extraPhotos = computed(() => displayFood.value?.photos?.filter((p: any) => p.type === 'barcode' || p.type === 'other') || [])
+
+const canEditOrDelete = computed(() => {
+  if (!currentUser.value) return false;
+  if (currentUser.value.is_admin) return true;
+  return currentUser.value.id === displayFood.value?.created_by;
+})
 
 watch(() => props.isOpen, async (newVal) => {
   if (newVal && props.food?.id) {
@@ -238,6 +263,7 @@ watch(() => props.isOpen, async (newVal) => {
     } finally {
       loading.value = false
     }
+    fetchCurrentUser()
   } else {
     fetchedFood.value = null
   }

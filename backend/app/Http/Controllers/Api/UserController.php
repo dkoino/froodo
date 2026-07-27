@@ -23,6 +23,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'is_admin' => $request->boolean('is_admin', false),
         ]);
 
         return new UserResource($user);

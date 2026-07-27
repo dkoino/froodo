@@ -5,7 +5,7 @@
         <div class="flex justify-between h-16">
           <div class="flex">
             <div class="flex-shrink-0 flex items-center">
-              <span class="text-2xl font-bold text-blue-600 tracking-tight hover:text-blue-400">Froodo</span>
+              <RouterLink to="/" class="text-2xl font-bold text-blue-600 tracking-tight hover:text-blue-400">Froodo</RouterLink>
             </div>
 
             <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
@@ -22,17 +22,17 @@
                     <RouterLink to="/foods" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600">
                       Übersicht
                     </RouterLink>
-                    <RouterLink to="/foods/create" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600">
+                    <RouterLink v-if="user" to="/foods/create" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600">
                       Neu Anlegen
                     </RouterLink>
-                    <RouterLink to="/import-export" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600">
+                    <RouterLink v-if="user?.is_admin" to="/import-export" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600">
                       Verwalten
                     </RouterLink>
                   </div>
                 </div>
               </div>
 
-              <div class="relative group h-full flex items-center">
+              <div v-if="user" class="relative group h-full flex items-center">
                 <RouterLink to="/food-log"
                   class="inline-flex items-center px-1 pt-1 border-b-2 font-medium text-sm transition-colors h-full"
                   active-class="border-blue-500 text-gray-900" exact-active-class="border-blue-500 text-gray-900"
@@ -52,7 +52,7 @@
                 </div>
               </div>
 
-              <div class="relative group h-full flex items-center">
+              <div v-if="user?.is_admin" class="relative group h-full flex items-center">
                 <RouterLink to="/users"
                   class="inline-flex items-center px-1 pt-1 border-b-2 font-medium text-sm transition-colors h-full"
                   active-class="border-blue-500 text-gray-900" exact-active-class="border-blue-500 text-gray-900"
@@ -80,8 +80,9 @@
               <span class="text-sm text-gray-700">Hallo, <strong>{{ user.name }}</strong></span>
               <button @click="logout" class="text-sm text-red-600 hover:text-red-800 transition-colors">Abmelden</button>
             </div>
-            <div v-else>
-              <RouterLink to="/login" class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">Anmelden</RouterLink>
+            <div v-else class="flex items-center space-x-4">
+              <RouterLink to="/register" class="text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors">Registrieren</RouterLink>
+              <RouterLink to="/login" class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">Einloggen</RouterLink>
             </div>
           </div>
         </div>

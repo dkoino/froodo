@@ -1,6 +1,6 @@
 <template>
-  <div class="max-w-2xl mx-auto p-6 bg-white shadow-sm rounded-lg mt-10 border border-gray-200">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Neuen Nutzer anlegen</h2>
+  <div class="max-w-md mx-auto p-6 bg-white shadow-sm rounded-lg mt-10 border border-gray-200">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Registrieren</h2>
 
     <form @submit.prevent="submit" class="space-y-4">
       <div>
@@ -23,20 +23,14 @@
         <BaseInput v-model="form.password_confirmation" type="password" required />
       </div>
 
-      <div class="flex items-center mt-4">
-        <input id="is_admin" v-model="form.is_admin" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-        <label for="is_admin" class="ml-2 block text-sm text-gray-900">
-          Administrator Rechte
-        </label>
+      <div class="pt-4">
+        <BaseButton type="submit" class="w-full bg-blue-600 text-white hover:bg-blue-700 shadow-sm py-2">
+          Registrieren
+        </BaseButton>
       </div>
-
-      <div class="pt-4 flex justify-end gap-3">
-        <BaseButton type="button" class="bg-gray-100 text-gray-700 border border-gray-300 shadow-sm" @click="router.push('/users')">
-          Abbrechen
-        </BaseButton>
-        <BaseButton type="submit" class="bg-blue-600 text-white hover:bg-blue-700 border border-transparent shadow-sm">
-          Speichern
-        </BaseButton>
+      
+      <div class="text-center mt-4 text-sm text-gray-600">
+        Bereits einen Account? <RouterLink to="/login" class="text-blue-600 hover:underline">Hier einloggen</RouterLink>
       </div>
     </form>
   </div>
@@ -53,14 +47,14 @@ const form = ref({
   name: '',
   email: '',
   password: '',
-  password_confirmation: '',
-  is_admin: false
+  password_confirmation: ''
 })
 
 const submit = async () => {
   try {
-    const response = await fetch('http://localhost:8000/api/users', { credentials: 'include',
+    const response = await fetch('http://localhost:8000/api/register', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -69,10 +63,11 @@ const submit = async () => {
     })
     
     if (response.ok) {
-      router.push('/users')
+      window.dispatchEvent(new Event('auth-change'))
+      router.push('/food-log')
     } else {
       const errorData = await response.json()
-      alert('Fehler beim Speichern: ' + (errorData.message || JSON.stringify(errorData.errors)))
+      alert('Fehler bei der Registrierung: ' + (errorData.message || JSON.stringify(errorData.errors)))
     }
   } catch (error) {
     console.error('Netzwerk-Fehler:', error)
