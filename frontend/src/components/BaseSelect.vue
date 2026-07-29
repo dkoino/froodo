@@ -12,7 +12,7 @@
             @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
             v-bind="$attrs"
             :required="required"
-            class="block w-full border border-gray-300 rounded-md p-1.5 focus:ring-0 focus:border-gray-400 bg-white"
+            class="block w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-0 focus:border-gray-400 bg-white"
         >
             <slot></slot>
         </select>

@@ -16,7 +16,7 @@
                     v-bind="$attrs"
                     :required="required"
                     type="text"
-                    class="block w-full border border-gray-300 rounded-md p-1.5 focus:ring-0 focus:border-gray-400 bg-white placeholder:text-gray-300"
+                    class="block w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-0 focus:border-gray-400 bg-white placeholder:text-gray-300"
                 >
                 <ul v-if="showDropdown && items.length > 0"
                     class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">

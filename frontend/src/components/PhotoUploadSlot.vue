@@ -15,7 +15,10 @@
       
       <!-- Datumsfeld -->
       <div class="w-full mt-2 flex items-center space-x-1 relative">
-        <input type="text" v-model="displayDate" @blur="validateAndSetDate" @keyup.enter="validateAndSetDate" placeholder="TT.MM.JJJJ" class="flex-1 min-w-0 text-xs border border-gray-300 rounded px-1.5 py-1 text-gray-700 focus:outline-none focus:border-blue-400 text-center" title="Aufnahmedatum (TT.MM.JJJJ)" />
+        <input type="text" v-model="displayDate" @blur="validateAndSetDate" @keyup.enter="validateAndSetDate" placeholder="TT.MM.JJJJ" 
+               class="flex-1 min-w-0 text-xs border rounded px-1.5 py-1 focus:outline-none text-center transition-colors"
+               :class="photo.is_date_valid === false ? 'border-red-500 text-red-700 focus:border-red-600 bg-red-50' : 'border-gray-300 text-gray-700 focus:border-blue-400 bg-white'" 
+               title="Aufnahmedatum (TT.MM.JJJJ)" />
         <div class="relative w-6 h-6 flex-shrink-0 flex items-center justify-center bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 overflow-hidden cursor-pointer">
           <svg class="w-4 h-4 text-gray-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -73,37 +76,52 @@ const validateAndSetDate = () => {
   let d = displayDate.value.trim();
   
   if (!d) {
-    props.photo.recorded_at = new Date().toISOString().split('T')[0];
-    displayDate.value = toDisplay(props.photo.recorded_at);
+    props.photo.recorded_at = '';
+    props.photo.is_date_valid = false;
     return;
   }
   
   const parts = d.split('.');
   if (parts.length === 3) {
-    const day = parseInt(parts[0]!, 10);
-    const month = parseInt(parts[1]!, 10);
-    let year = parseInt(parts[2]!, 10);
-    
-    if (year < 100) year += 2000;
-    
-    const inputDate = new Date(year, month - 1, day);
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    
-    if (!isNaN(inputDate.getTime()) && inputDate <= today && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-      const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      props.photo.recorded_at = iso;
-      displayDate.value = toDisplay(iso);
-      return;
+    const isDigits = /^\d+$/.test(parts[0]!) && /^\d+$/.test(parts[1]!) && /^\d+$/.test(parts[2]!);
+    if (isDigits) {
+        const day = parseInt(parts[0]!, 10);
+        const month = parseInt(parts[1]!, 10);
+        let year = parseInt(parts[2]!, 10);
+        
+        if (year < 100) year += 2000;
+        
+        const inputDate = new Date(year, month - 1, day);
+        const todayDate = new Date();
+        todayDate.setHours(0,0,0,0);
+        
+        const isStrictDay = inputDate.getDate() === day && inputDate.getMonth() === month - 1 && inputDate.getFullYear() === year;
+        
+        if (!isNaN(inputDate.getTime()) && isStrictDay && inputDate <= todayDate && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+            const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            props.photo.recorded_at = iso;
+            props.photo.is_date_valid = true;
+            displayDate.value = toDisplay(iso);
+            return;
+        }
     }
   }
   
-  if (props.photo.recorded_at) {
-    displayDate.value = toDisplay(props.photo.recorded_at);
-  } else {
-    props.photo.recorded_at = today.value;
-    displayDate.value = toDisplay(props.photo.recorded_at);
+  if (d.includes('-') && !isNaN(new Date(d).getTime())) {
+      const inputDate = new Date(d);
+      const todayDate = new Date();
+      todayDate.setHours(0,0,0,0);
+      if (inputDate <= todayDate) {
+          props.photo.recorded_at = d;
+          props.photo.is_date_valid = true;
+          displayDate.value = toDisplay(d);
+          return;
+      }
   }
+  
+  // Invalid
+  props.photo.recorded_at = d;
+  props.photo.is_date_valid = false;
 };
 
 const onNativeDateChange = (e: Event) => {
@@ -115,12 +133,15 @@ const onNativeDateChange = (e: Event) => {
     const currentDate = new Date(today.value);
     
     if (isNaN(inputDate.getTime()) || inputDate > currentDate) {
-      props.photo.recorded_at = today.value;
+      props.photo.recorded_at = target.value;
+      props.photo.is_date_valid = false;
     } else {
       props.photo.recorded_at = target.value;
+      props.photo.is_date_valid = true;
     }
   } else {
-    props.photo.recorded_at = today.value;
+    props.photo.recorded_at = '';
+    props.photo.is_date_valid = false;
   }
   displayDate.value = toDisplay(props.photo.recorded_at);
 };

@@ -5,13 +5,13 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Links: Eingabefelder -->
-                <div class="space-y-4">
-                    <div class="space-y-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                <div class="space-y-3">
+                    <div class="space-y-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
                         <BaseInput v-model="form.name" required label="Produktname" placeholder="z. B. Sprite" />
                         <BaseInput v-model="form.variant" label="Variante" placeholder="z. B. Zero" />
                     </div>
 
-                    <div class="space-y-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="space-y-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
                         <AutocompleteInput
                             v-model="form.brand_name"
                             :items="filteredBrands"
@@ -73,8 +73,8 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Links: Eingabefelder -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                <div class="space-y-3">
+                    <div class="space-y-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
                         <AutocompleteInput
                             v-model="form.main_category_name"
                             :items="filteredMainCategories"
@@ -86,12 +86,13 @@
                             v-model="form.sub_category_name"
                             :items="filteredSubCategories"
                             label="Unterkategorie"
-                            placeholder="z. B. Käse"
+                            :disabled="!form.main_category_name"
+                            :placeholder="!form.main_category_name ? 'Zuerst Hauptkategorie wählen' : 'z. B. Käse'"
                             @select="selectSubCategory"
                         />
                     </div>
 
-                    <div class="space-y-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="space-y-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
                         <BaseSelect v-model="form.meat_type" label="Fleischsorte">
                             <option value="Unbekannt">Unbekannt</option>
                             <option value="Schwein">Schwein</option>
@@ -127,15 +128,15 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Links: Eingabefelder -->
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
                         <BaseInput v-model="form.total_amount" type="number" required label="Gesamtmenge" placeholder="z. B. 500" />
                         <BaseSelect v-model="form.measurement_unit" required label="Basis-Einheit">
                             <option value="g">Gramm (g)</option>
                             <option value="ml">Milliliter (ml)</option>
                         </BaseSelect>
                     </div>
-                    <div class="grid grid-cols-2 gap-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="grid grid-cols-2 gap-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
                         <BaseInput v-model="form.portion_label" label="Portions-Label" placeholder="z. B. 1 Glas, 1 Riegel" />
                         <BaseInput v-model="form.portion_amount" type="number" step="1" :label="`Portions-Menge in ${form.measurement_unit}`" placeholder="z. B. 250" />
                     </div>
@@ -155,12 +156,12 @@
         </div>
 
         <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b border-gray-200 pb-2">Nährwerte pro 100 {{ form.measurement_unit }}</h3>
+            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b border-gray-200 pb-2">Nährwerte pro 100{{ form.measurement_unit }}</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Links: Eingabefelder (Viertelgröße) -->
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
                         <div class="col-span-2 sm:col-span-1">
                             <BaseInput v-model="form.calories_p100" type="number" required label="Kalorien (kcal)" />
                             <p v-if="calorieDiscrepancy" class="text-[10px] text-amber-600 mt-1 leading-tight">
@@ -169,16 +170,34 @@
                         </div>
                         <div class="hidden sm:block"></div>
                         
-                        <BaseInput v-model="form.fat_p100" type="number" step="0.1" required label="Fett (g)" />
-                        <BaseInput v-model="form.sat_fat_p100" type="number" step="0.1" label="davon gesättigt" />
+                        <div>
+                            <BaseInput v-model="form.fat_p100" type="number" step="0.1" required label="Fett" />
+                        </div>
+                        <div>
+                            <BaseInput v-model="form.sat_fat_p100" type="number" step="0.1" label="davon gesättigt" />
+                            <p v-if="fatDiscrepancy" class="text-[10px] text-amber-600 mt-1 leading-tight">
+                                ⚠️ Mehr gesättigt als Fett?
+                            </p>
+                        </div>
                         
-                        <BaseInput v-model="form.carbs_p100" type="number" step="0.1" required label="Kohlenhydrate (g)" />
-                        <BaseInput v-model="form.sugar_p100" type="number" step="0.1" label="davon Zucker" />
+                        <div>
+                            <BaseInput v-model="form.carbs_p100" type="number" step="0.1" required label="Kohlenhydrate" />
+                        </div>
+                        <div>
+                            <BaseInput v-model="form.sugar_p100" type="number" step="0.1" label="davon Zucker" />
+                            <p v-if="sugarDiscrepancy" class="text-[10px] text-amber-600 mt-1 leading-tight">
+                                ⚠️ Mehr Zucker als Kohlenhydrate?
+                            </p>
+                        </div>
                         
-                        <BaseInput v-model="form.protein_p100" type="number" step="0.1" required label="Protein (g)" />
                         <BaseInput v-model="form.fiber_p100" type="number" step="0.1" label="Ballaststoffe" />
+                        <div class="hidden sm:block"></div>
                         
-                        <BaseInput v-model="form.salt_p100" type="number" step="0.1" label="Salz (g)" />
+                        <BaseInput v-model="form.protein_p100" type="number" step="0.1" required label="Protein" />
+                        <div class="hidden sm:block"></div>
+                        
+                        <BaseInput v-model="form.salt_p100" type="number" step="0.1" label="Salz" />
+                        <div class="hidden sm:block"></div>
                     </div>
                 </div>
 
@@ -200,11 +219,18 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Links: Eingabefelder -->
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
-                        <BaseInput v-model="form.price" type="number" step="0.01" label="Preis" placeholder="0.00" />
+                <div class="space-y-3">
+                    <div class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
                         <BaseInput v-model="form.barcode" type="text" label="Barcode (EAN)" placeholder="z. B. 4000000000000" />
-                        
+                    </div>
+                    
+                    <div class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        <div class="grid grid-cols-2 gap-2">
+                            <BaseInput v-model="form.price" type="number" step="0.01" label="Preis" placeholder="0.00" />
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
                         <BaseSelect v-model="form.source_type" required label="Datenquelle">
                             <option value="Verpackung">Verpackung</option>
                             <option value="Herstellerseite">Herstellerseite</option>
@@ -212,8 +238,10 @@
                             <option value="Sonstiges">Sonstiges</option>
                         </BaseSelect>
                         <BaseInput v-model="form.source_url" type="url" label="Quellen-Link" placeholder="https://example.com" />
-                        
-                        <div class="col-span-2 mt-2 flex flex-col xl:flex-row gap-4 items-start">
+                    </div>
+                    
+                    <div class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                        <div class="flex flex-col xl:flex-row gap-4 items-start">
                             <div class="flex-1 w-full">
                                 <label class="block text-sm mb-1 font-normal text-gray-400">Notizen</label>
                                 <textarea v-model="form.notes" rows="4"
@@ -402,7 +430,7 @@ const mainCategories = ref<any[]>([]);
 const subCategories = ref<any[]>([]);
 
 // Photo Slots
-type PhotoSlot = { id?: number, src: string, file?: File, type: string, recorded_at?: string };
+type PhotoSlot = { id?: number, src: string, file?: File, type: string, recorded_at?: string, is_date_valid?: boolean };
 const packagingPhoto = ref<PhotoSlot | null>(null);
 const contentPhoto = ref<PhotoSlot | null>(null);
 const nutritionPhoto = ref<PhotoSlot | null>(null);
@@ -483,7 +511,8 @@ const confirmCrop = () => {
                         file: compressedFile, 
                         src, 
                         type: cropTargetType.value,
-                        recorded_at: new Date().toISOString().split('T')[0]
+                        recorded_at: new Date().toISOString().split('T')[0],
+                        is_date_valid: true
                     };
                     
                     if (cropTargetType.value === 'packaging') setSlot(packagingPhoto, slotData);
@@ -562,7 +591,13 @@ watch(() => props.initialData, (newData) => {
             otherPhotos.value = [];
             
             newData.photos.forEach((photo: any) => {
-                const slotData = { id: photo.id, src: `http://localhost:8000/storage/${photo.file_path}`, type: photo.type, recorded_at: photo.recorded_at };
+                const slotData = { 
+                    id: photo.id, 
+                    src: `http://localhost:8000/storage/${photo.file_path}`, 
+                    type: photo.type, 
+                    recorded_at: photo.recorded_at,
+                    is_date_valid: true
+                };
                 
                 if (photo.type === 'packaging') {
                     if (!packagingPhoto.value) packagingPhoto.value = slotData;
@@ -679,6 +714,18 @@ const calorieDiscrepancy = computed(() => {
     return percentDiff > 0.02 && diff > 10;
 });
 
+const fatDiscrepancy = computed(() => {
+    const fat = Number(form.value.fat_p100) || 0;
+    const satFat = Number(form.value.sat_fat_p100) || 0;
+    return satFat > fat;
+});
+
+const sugarDiscrepancy = computed(() => {
+    const carbs = Number(form.value.carbs_p100) || 0;
+    const sugar = Number(form.value.sugar_p100) || 0;
+    return sugar > carbs;
+});
+
 watch(exactBrandMatch, (newBrand) => {
     if (newBrand && newBrand.manufacturer) {
         form.value.manufacturer_name = newBrand.manufacturer.name;
@@ -720,6 +767,12 @@ const submitForm = () => {
         barcodePhoto.value,
         ...otherPhotos.value
     ].filter(Boolean) as PhotoSlot[];
+
+    const hasInvalidDates = allPhotos.some(p => p.is_date_valid === false);
+    if (hasInvalidDates) {
+        alert("Datum inkorrekt! Bitte überprüfe die Datumsfelder der Fotos.");
+        return;
+    }
 
     allPhotos.forEach(p => {
         if (p.file) {

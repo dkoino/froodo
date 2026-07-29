@@ -12,7 +12,7 @@
             @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
             v-bind="$attrs"
             :required="required"
-            class="block w-full border border-gray-300 rounded-md p-1.5 focus:ring-0 focus:border-gray-400 bg-white disabled:bg-gray-100 disabled:text-gray-500 placeholder:text-gray-300"
+            class="block w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-0 focus:border-gray-400 bg-white disabled:bg-gray-100 disabled:text-gray-500 placeholder:text-gray-300"
         >
     </div>
 </template>
