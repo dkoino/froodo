@@ -222,6 +222,16 @@
                 <div class="space-y-3">
                     <div class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
                         <BaseInput v-model="form.barcode" type="text" label="Barcode (EAN)" placeholder="z. B. 4000000000000" />
+                        <p v-if="barcodeInfo" class="mt-2 text-xs font-medium" :class="{
+                            'text-green-600': barcodeInfo.type === 'success',
+                            'text-amber-600': barcodeInfo.type === 'warning',
+                            'text-red-600': barcodeInfo.type === 'error'
+                        }">
+                            {{ barcodeInfo.text }}
+                        </p>
+                        <p v-if="barcodeExistsWarning" class="mt-2 text-xs font-bold text-red-600 bg-red-50 p-2 rounded border border-red-100">
+                            {{ barcodeExistsWarning }}
+                        </p>
                     </div>
                     
                     <div class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
@@ -353,6 +363,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import imageCompression from 'browser-image-compression';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
+import exifr from 'exifr';
 
 import BaseInput from './BaseInput.vue';
 import BaseSelect from './BaseSelect.vue';
@@ -443,17 +454,33 @@ const deletedPhotoIds = ref<number[]>([]);
 const isCropModalOpen = ref(false);
 const cropImageUrl = ref('');
 const cropTargetType = ref('');
+const cropTargetExifDate = ref('');
 const cropperRef = ref<any>(null);
 let rawFileBuffer: File | null = null;
 
-const openCropper = (e: Event, type: string) => {
+const openCropper = async (e: Event, type: string) => {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
         rawFileBuffer = target.files[0] || null;
         cropTargetType.value = type;
+        cropTargetExifDate.value = new Date().toISOString().split('T')[0] || '';
+        
         if (rawFileBuffer) {
             cropImageUrl.value = URL.createObjectURL(rawFileBuffer as Blob);
+            
+            try {
+                const exifData = await exifr.parse(rawFileBuffer, { pick: ['DateTimeOriginal', 'CreateDate'] });
+                if (exifData) {
+                    const dateObj = exifData.DateTimeOriginal || exifData.CreateDate;
+                    if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
+                        cropTargetExifDate.value = dateObj.toISOString().split('T')[0] || '';
+                    }
+                }
+            } catch (err) {
+                console.warn("Could not parse EXIF data:", err);
+            }
         }
+        
         isCropModalOpen.value = true;
         target.value = ''; 
     }
@@ -511,7 +538,7 @@ const confirmCrop = () => {
                         file: compressedFile, 
                         src, 
                         type: cropTargetType.value,
-                        recorded_at: new Date().toISOString().split('T')[0],
+                        recorded_at: cropTargetExifDate.value,
                         is_date_valid: true
                     };
                     
@@ -627,58 +654,77 @@ watch(() => props.initialData, (newData) => {
     }
 }, { immediate: true });
 
-const fetchBrands = async () => {
+const fetchBrands = async (search = '') => {
     try {
-        const response = await fetch('http://localhost:8000/api/brands', { credentials: 'include' });
+        const response = await fetch(`http://localhost:8000/api/brands?search=${encodeURIComponent(search)}`, { credentials: 'include' });
         brands.value = await response.json();
     } catch (error) { console.error(error); }
 };
 
-const fetchManufacturers = async () => {
+const fetchManufacturers = async (search = '') => {
     try {
-        const response = await fetch('http://localhost:8000/api/manufacturers', { credentials: 'include' });
+        const response = await fetch(`http://localhost:8000/api/manufacturers?search=${encodeURIComponent(search)}`, { credentials: 'include' });
         manufacturers.value = await response.json();
     } catch (error) { console.error(error); }
 };
 
-const fetchCategories = async () => {
+const fetchMainCategories = async (search = '') => {
     try {
-        const [mainRes, subRes] = await Promise.all([
-            fetch('http://localhost:8000/api/main-categories', { credentials: 'include' }),
-            fetch('http://localhost:8000/api/sub-categories', { credentials: 'include' })
-        ]);
-        mainCategories.value = await mainRes.json();
-        subCategories.value = await subRes.json();
+        const response = await fetch(`http://localhost:8000/api/main-categories?search=${encodeURIComponent(search)}`, { credentials: 'include' });
+        mainCategories.value = await response.json();
     } catch (error) { console.error(error); }
 };
 
-const filteredMainCategories = computed(() => {
-    if (!form.value.main_category_name) return mainCategories.value;
-    return mainCategories.value.filter(cat =>
-        cat.name.toLowerCase().includes(form.value.main_category_name.toLowerCase())
-    );
-});
+const fetchSubCategories = async (search = '', mainCatId = '') => {
+    try {
+        let url = `http://localhost:8000/api/sub-categories?search=${encodeURIComponent(search)}`;
+        if (mainCatId) {
+            url += `&main_category_id=${mainCatId}`;
+        }
+        const response = await fetch(url, { credentials: 'include' });
+        subCategories.value = await response.json();
+    } catch (error) { console.error(error); }
+};
 
-const filteredSubCategories = computed(() => {
-    let cats = subCategories.value;
-    if (form.value.main_category_name) {
-        const mainCat = mainCategories.value.find(
-            c => c.name.toLowerCase() === form.value.main_category_name.toLowerCase()
-        );
-        if (mainCat) cats = cats.filter(cat => cat.main_category_id === mainCat.id);
-    }
-    if (form.value.sub_category_name) {
-        cats = cats.filter(cat => cat.name.toLowerCase().includes(form.value.sub_category_name.toLowerCase()));
-    }
-    return cats;
-});
+// Filtering is now done server-side, so we just return the fetched arrays
+const filteredMainCategories = computed(() => mainCategories.value);
+const filteredSubCategories = computed(() => subCategories.value);
+const filteredBrands = computed(() => brands.value);
+const filteredManufacturers = computed(() => manufacturers.value);
 
 const selectMainCategory = (cat: any) => form.value.main_category_name = cat.name;
 const selectSubCategory = (cat: any) => form.value.sub_category_name = cat.name;
 
-const filteredBrands = computed(() => {
-    if (!form.value.brand_name) return brands.value;
-    return brands.value.filter(brand => brand.name.toLowerCase().includes(form.value.brand_name.toLowerCase()));
+let brandTimeout: any = null;
+watch(() => form.value.brand_name, (val) => {
+    if (brandTimeout) clearTimeout(brandTimeout);
+    brandTimeout = setTimeout(() => fetchBrands(val || ''), 300);
+});
+
+let manufacturerTimeout: any = null;
+watch(() => form.value.manufacturer_name, (val) => {
+    if (manufacturerTimeout) clearTimeout(manufacturerTimeout);
+    manufacturerTimeout = setTimeout(() => fetchManufacturers(val || ''), 300);
+});
+
+let mainCatTimeout: any = null;
+watch(() => form.value.main_category_name, (val) => {
+    if (mainCatTimeout) clearTimeout(mainCatTimeout);
+    mainCatTimeout = setTimeout(() => {
+        fetchMainCategories(val || '');
+        // If main category changes, we should also update subcategories based on it
+        const exactMatch = mainCategories.value.find(c => c.name.toLowerCase() === (val || '').toLowerCase());
+        fetchSubCategories('', exactMatch ? exactMatch.id : '');
+    }, 300);
+});
+
+let subCatTimeout: any = null;
+watch(() => form.value.sub_category_name, (val) => {
+    if (subCatTimeout) clearTimeout(subCatTimeout);
+    subCatTimeout = setTimeout(() => {
+        const exactMatch = mainCategories.value.find(c => c.name.toLowerCase() === form.value.main_category_name.toLowerCase());
+        fetchSubCategories(val || '', exactMatch ? exactMatch.id : '');
+    }, 300);
 });
 
 const exactBrandMatch = computed(() => {
@@ -686,10 +732,6 @@ const exactBrandMatch = computed(() => {
     return brands.value.find(b => b.name.toLowerCase() === form.value.brand_name.toLowerCase()) || null;
 });
 
-const filteredManufacturers = computed(() => {
-    if (!form.value.manufacturer_name) return manufacturers.value;
-    return manufacturers.value.filter(m => m.name.toLowerCase().includes(form.value.manufacturer_name.toLowerCase()));
-});
 
 const exactManufacturerMatch = computed(() => {
     if (!form.value.manufacturer_name) return null;
@@ -726,6 +768,77 @@ const sugarDiscrepancy = computed(() => {
     return sugar > carbs;
 });
 
+const barcodeInfo = computed(() => {
+    const code = form.value.barcode?.trim();
+    if (!code) return null;
+
+    const isNumeric = /^\d+$/.test(code);
+    if (!isNumeric) {
+        return { type: 'error', text: 'Ein Barcode darf nur aus Zahlen bestehen.' };
+    }
+
+    if (![8, 12, 13, 14].includes(code.length)) {
+        return { type: 'warning', text: `Unübliche Länge (${code.length} Ziffern). Erwartet werden 8, 12, 13 oder 14.` };
+    }
+
+    // Check digit calculation
+    let sum = 0;
+    const digits = code.split('').map(Number);
+    const checkDigit = digits.pop()!;
+    digits.reverse().forEach((digit, index) => {
+        sum += digit * (index % 2 === 0 ? 3 : 1);
+    });
+    const calculatedCheck = (10 - (sum % 10)) % 10;
+    
+    if (calculatedCheck !== checkDigit) {
+        return { type: 'error', text: 'Die Prüfziffer ist falsch. Wahrscheinlich ein Tippfehler.' };
+    }
+
+    if (code.length === 13) {
+        const prefix3 = parseInt(code.substring(0, 3), 10);
+        const prefix2 = parseInt(code.substring(0, 2), 10);
+
+        if (prefix3 >= 400 && prefix3 <= 440) return { type: 'success', text: '✓ Gültig (Herkunft: Deutschland 🇩🇪)' };
+        if (prefix3 >= 900 && prefix3 <= 919) return { type: 'success', text: '✓ Gültig (Herkunft: Österreich 🇦🇹)' };
+        if (prefix2 === 76) return { type: 'success', text: '✓ Gültig (Herkunft: Schweiz 🇨🇭)' };
+        if (prefix2 >= 20 && prefix2 <= 29) return { type: 'success', text: '✓ Gültig (Lokale Instore-Nummer 🛒)' };
+        if (prefix3 === 978 || prefix3 === 979) return { type: 'success', text: '✓ Gültig (Buch ISBN 📚)' };
+        
+        return { type: 'success', text: '✓ Gültiger EAN-13 Barcode' };
+    }
+
+    return { type: 'success', text: '✓ Gültiger Barcode' };
+});
+
+const barcodeExistsWarning = ref<string | null>(null);
+let barcodeCheckTimeout: any = null;
+
+watch(() => form.value.barcode, (newBarcode) => {
+    barcodeExistsWarning.value = null;
+    if (barcodeCheckTimeout) clearTimeout(barcodeCheckTimeout);
+    
+    const code = newBarcode?.trim();
+    if (!code || code.length < 8) return;
+
+    barcodeCheckTimeout = setTimeout(async () => {
+        try {
+            const res = await fetch(`http://localhost:8000/api/foods/check-barcode?barcode=${code}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.exists && data.food) {
+                    if (props.initialData && props.initialData.id === data.food.id) {
+                        return; // Editing the same item, ignore
+                    }
+                    const variantText = data.food.variant ? ` (${data.food.variant})` : '';
+                    barcodeExistsWarning.value = `Achtung: Dieser Barcode existiert bereits in der Datenbank für das Produkt "${data.food.name}${variantText}"!`;
+                }
+            }
+        } catch (e) {
+            console.error("Fehler beim Prüfen des Barcodes:", e);
+        }
+    }, 500);
+});
+
 watch(exactBrandMatch, (newBrand) => {
     if (newBrand && newBrand.manufacturer) {
         form.value.manufacturer_name = newBrand.manufacturer.name;
@@ -744,9 +857,10 @@ const selectManufacturer = (m: any) => {
 };
 
 onMounted(() => {
-    fetchBrands();
-    fetchManufacturers();
-    fetchCategories();
+    fetchBrands(form.value.brand_name || '');
+    fetchManufacturers(form.value.manufacturer_name || '');
+    fetchMainCategories(form.value.main_category_name || '');
+    fetchSubCategories(form.value.sub_category_name || '');
 });
 
 const submitForm = () => {

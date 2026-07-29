@@ -9,6 +9,28 @@ use Illuminate\Support\Facades\Storage;
 
 class FoodController extends Controller
 {
+    public function checkBarcode(Request $request)
+    {
+        $barcode = $request->query('barcode');
+        if (!$barcode) {
+            return response()->json(['exists' => false]);
+        }
+
+        $food = Food::where('barcode', $barcode)->first();
+        if ($food) {
+            return response()->json([
+                'exists' => true,
+                'food' => [
+                    'id' => $food->id,
+                    'name' => $food->name,
+                    'variant' => $food->variant
+                ]
+            ]);
+        }
+
+        return response()->json(['exists' => false]);
+    }
+
     public function index()
     {
         return response()->json(Food::with(['brand.manufacturer', 'photos', 'mainCategory', 'subCategory', 'creator', 'updater'])->get());

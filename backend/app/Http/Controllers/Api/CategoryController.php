@@ -5,16 +5,28 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\MainCategory;
 use App\Models\SubCategory;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function mainCategories()
+    public function mainCategories(Request $request)
     {
-        return response()->json(MainCategory::all());
+        $query = MainCategory::query();
+        if ($search = $request->query('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+        return response()->json($query->limit(20)->get());
     }
 
-    public function subCategories()
+    public function subCategories(Request $request)
     {
-        return response()->json(SubCategory::all());
+        $query = SubCategory::query();
+        if ($search = $request->query('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+        if ($mainCatId = $request->query('main_category_id')) {
+            $query->where('main_category_id', $mainCatId);
+        }
+        return response()->json($query->limit(20)->get());
     }
 }

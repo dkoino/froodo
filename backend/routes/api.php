@@ -16,6 +16,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout']);
 
 # PUBLIC (Visitor + User + Admin)
+Route::get('/foods/check-barcode', [FoodController::class, 'checkBarcode']);
 Route::get('/foods', [FoodController::class, 'index']);
 Route::get('/foods/{id}', [FoodController::class, 'show']);
 Route::get('/brands', [BrandController::class, 'index']);

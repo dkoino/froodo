@@ -8,9 +8,13 @@ use Illuminate\Http\Request;
 
 class BrandController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Brand::with('manufacturer')->get());
+        $query = Brand::with('manufacturer');
+        if ($search = $request->query('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+        return response()->json($query->limit(20)->get());
     }
 
     public function store(Request $request)
