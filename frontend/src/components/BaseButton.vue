@@ -21,6 +21,7 @@ type Variant =
     | 'danger'
     | 'danger-soft'
     | 'warning'
+    | 'success'
     | 'inverted'
     | 'ghost'
     | 'none';
@@ -51,6 +52,7 @@ const variantClasses: Record<string, string> = {
     danger: 'bg-danger text-on-danger hover:bg-danger-hover border border-transparent shadow-sm',
     'danger-soft': 'bg-danger-soft text-danger border border-danger-soft-border hover:bg-danger-soft-hover shadow-sm',
     warning: 'bg-warning text-on-warning border border-transparent shadow-sm',
+    success: 'bg-success text-on-success hover:bg-success-hover border border-transparent shadow-sm',
     inverted: 'bg-surface-inverted text-on-inverted hover:bg-surface-inverted-hover border border-transparent shadow-sm',
     ghost: 'bg-transparent text-content-muted hover:text-content-secondary border border-transparent',
     none: ''

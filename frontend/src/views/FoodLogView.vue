@@ -110,7 +110,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import DailyFoodLog from '@/components/DailyFoodLog.vue'
+
+const route = useRoute()
+const router = useRouter()
 
 const logs = ref<any[]>([])
 const availableFoods = ref<any[]>([])
@@ -140,7 +144,7 @@ const openAddModal = (dateStr: string) => {
 }
 
 const addForm = ref({
-  food_id: '',
+  food_id: '' as string | number,
   amount: null as number | null,
   consumed_at: ''
 })
@@ -276,8 +280,15 @@ const handleDeleteLog = (id: number) => {
 
 
 
-onMounted(() => {
+onMounted(async () => {
   fetchLogs()
-  fetchAvailableFoods()
+  await fetchAvailableFoods()
+
+  const foodId = route.query.addFood
+  if (foodId) {
+    openAddModal(getTodayDateStr())
+    addForm.value.food_id = Number(foodId)
+    router.replace({ query: {} })
+  }
 })
 </script>

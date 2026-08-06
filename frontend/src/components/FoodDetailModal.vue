@@ -264,6 +264,9 @@
           </BaseButton>
         </div>
         <div class="flex space-x-3">
+          <BaseButton v-if="currentUser" variant="success" class="rounded-md" @click="goToFoodLog">
+            Essen
+          </BaseButton>
           <BaseButton v-if="canEditOrDelete" variant="warning" class="rounded-md" @click="goToEdit">
             Bearbeiten
           </BaseButton>
@@ -379,5 +382,10 @@ const translateType = (type: string) => {
 const goToEdit = () => {
   emit('close')
   router.push(`/foods/${props.food.id}/edit`)
+}
+
+const goToFoodLog = () => {
+  emit('close')
+  router.push(`/food-log?addFood=${props.food.id}`)
 }
 </script>

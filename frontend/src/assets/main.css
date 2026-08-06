@@ -48,10 +48,12 @@
 
   /* Success */
   --color-success: var(--t-success);
+  --color-success-hover: var(--t-success-hover);
   --color-success-strong: var(--t-success-strong);
   --color-success-soft: var(--t-success-soft);
   --color-success-soft-strong: var(--t-success-soft-strong);
   --color-success-soft-border: var(--t-success-soft-border);
+  --color-on-success: var(--t-on-success);
 
   /* Warning */
   --color-warning: var(--t-warning);
@@ -115,10 +117,12 @@
   --t-on-danger: var(--color-white);
 
   --t-success: var(--color-green-600);
+  --t-success-hover: var(--color-green-700);
   --t-success-strong: var(--color-green-800);
   --t-success-soft: var(--color-green-50);
   --t-success-soft-strong: var(--color-green-100);
   --t-success-soft-border: var(--color-green-200);
+  --t-on-success: var(--color-white);
 
   --t-warning: var(--color-amber-600);
   --t-on-warning: var(--color-white);
@@ -179,10 +183,12 @@
   --t-on-danger: var(--color-white);
 
   --t-success: var(--color-green-400);
+  --t-success-hover: var(--color-green-300);
   --t-success-strong: var(--color-green-300);
   --t-success-soft: var(--color-green-950);
   --t-success-soft-strong: var(--color-green-900);
   --t-success-soft-border: var(--color-green-800);
+  --t-on-success: var(--color-white);
 
   --t-warning: var(--color-amber-400);
   --t-on-warning: var(--color-gray-900);
