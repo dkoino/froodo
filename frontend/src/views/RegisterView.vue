@@ -1,36 +1,36 @@
 <template>
-  <div class="max-w-md mx-auto p-6 bg-white shadow-sm rounded-lg mt-10 border border-gray-200">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Registrieren</h2>
+  <div class="max-w-md mx-auto p-6 bg-surface shadow-sm rounded-lg mt-10 border border-border">
+    <h2 class="text-2xl font-bold text-content mb-6 text-center">Registrieren</h2>
 
     <form @submit.prevent="submit" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+        <label class="block text-sm font-medium text-content-secondary mb-1">Name</label>
         <BaseInput v-model="form.name" required />
       </div>
       
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">E-Mail</label>
+        <label class="block text-sm font-medium text-content-secondary mb-1">E-Mail</label>
         <BaseInput v-model="form.email" type="email" required />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Passwort</label>
+        <label class="block text-sm font-medium text-content-secondary mb-1">Passwort</label>
         <BaseInput v-model="form.password" type="password" required />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Passwort bestätigen</label>
+        <label class="block text-sm font-medium text-content-secondary mb-1">Passwort bestätigen</label>
         <BaseInput v-model="form.password_confirmation" type="password" required />
       </div>
 
       <div class="pt-4">
-        <BaseButton type="submit" class="w-full bg-blue-600 text-white hover:bg-blue-700 shadow-sm py-2">
+        <BaseButton type="submit" variant="primary" class="w-full py-2">
           Registrieren
         </BaseButton>
       </div>
       
-      <div class="text-center mt-4 text-sm text-gray-600">
-        Bereits einen Account? <RouterLink to="/login" class="text-blue-600 hover:underline">Hier einloggen</RouterLink>
+      <div class="text-center mt-4 text-sm text-content-muted">
+        Bereits einen Account? <RouterLink to="/login" class="text-primary hover:underline">Hier einloggen</RouterLink>
       </div>
     </form>
   </div>

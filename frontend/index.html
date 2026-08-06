@@ -5,6 +5,24 @@
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Froodo</title>
+    <script>
+      // Runs before first paint to avoid a flash of the light theme on reload.
+      // Must stay in sync with src/composables/useTheme.ts.
+      (function () {
+        try {
+          var stored = localStorage.getItem('froodo-theme')
+        } catch (e) {
+          var stored = null
+        }
+        var theme =
+          stored === 'light' || stored === 'dark'
+            ? stored
+            : window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+        document.documentElement.dataset.theme = theme
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>

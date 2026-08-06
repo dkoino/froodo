@@ -1,26 +1,26 @@
 <template>
   <div class="relative border border-dashed rounded p-3 flex flex-col items-center group aspect-square justify-center transition-colors"
-       :class="photo ? 'bg-blue-50/30 border-blue-200' : 'bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400'">
+       :class="photo ? 'bg-primary-soft/30 border-primary-soft-border' : 'bg-surface border-border-strong hover:bg-surface-muted hover:border-border-strong'">
     
     <template v-if="photo">
-      <span v-if="photo.id" class="absolute top-1 left-1 bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Gespeichert</span>
-      <span v-else class="absolute top-1 left-1 bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Neu</span>
+      <span v-if="photo.id" class="absolute top-1 left-1 bg-primary-soft-strong text-primary-hover text-[10px] font-bold px-1.5 py-0.5 rounded">Gespeichert</span>
+      <span v-else class="absolute top-1 left-1 bg-success-soft-strong text-success text-[10px] font-bold px-1.5 py-0.5 rounded">Neu</span>
       
-      <button type="button" class="absolute top-1 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs bg-red-100 text-red-600 hover:bg-red-200 transition-colors" @click.prevent="$emit('remove')" title="Bild löschen">
+      <button type="button" class="absolute top-1 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs bg-danger-soft-hover text-danger hover:bg-danger-soft-border transition-colors" @click.prevent="$emit('remove')" title="Bild löschen">
         &times;
       </button>
       
       <img :src="photo.src" class="flex-1 w-full h-0 object-contain rounded mt-4">
-      <div class="mt-2 text-xs font-semibold text-gray-700 w-full text-center">{{ label }}</div>
+      <div class="mt-2 text-xs font-semibold text-content-secondary w-full text-center">{{ label }}</div>
       
       <!-- Datumsfeld -->
       <div class="w-full mt-2 flex items-center space-x-1 relative">
         <input type="text" v-model="displayDate" @blur="validateAndSetDate" @keyup.enter="validateAndSetDate" placeholder="TT.MM.JJJJ" 
                class="flex-1 min-w-0 text-xs border rounded px-1.5 py-1 focus:outline-none text-center transition-colors"
-               :class="photo.is_date_valid === false ? 'border-red-500 text-red-700 focus:border-red-600 bg-red-50' : 'border-gray-300 text-gray-700 focus:border-blue-400 bg-white'" 
+               :class="photo.is_date_valid === false ? 'border-danger text-danger-hover focus:border-danger bg-danger-soft' : 'border-border-strong text-content-secondary focus:border-primary-border bg-surface'" 
                title="Aufnahmedatum (TT.MM.JJJJ)" />
-        <div class="relative w-6 h-6 flex-shrink-0 flex items-center justify-center bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 overflow-hidden cursor-pointer">
-          <svg class="w-4 h-4 text-gray-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="relative w-6 h-6 flex-shrink-0 flex items-center justify-center bg-surface-subtle border border-border-strong rounded hover:bg-surface-subtle overflow-hidden cursor-pointer">
+          <svg class="w-4 h-4 text-content-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
           </svg>
           <input type="date" :value="photo.recorded_at" :max="today" @change="onNativeDateChange" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" title="Kalender öffnen" />
@@ -31,11 +31,11 @@
     <template v-else>
       <label class="flex flex-col items-center justify-center cursor-pointer w-full h-full">
         <input type="file" accept="image/*" @change="$emit('upload', $event)" class="hidden">
-        <svg class="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-8 h-8 text-content-subtle mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-        <span class="text-xs font-medium text-gray-500 text-center">{{ label }}<br>hinzufügen</span>
+        <span class="text-xs font-medium text-content-muted text-center">{{ label }}<br>hinzufügen</span>
       </label>
     </template>
 

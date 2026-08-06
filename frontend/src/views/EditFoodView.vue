@@ -1,22 +1,22 @@
 <template>
-    <div class="max-w-4xl mx-auto p-6 bg-white shadow-sm rounded-lg mt-10 mb-10 border border-gray-200">
+    <div class="max-w-4xl mx-auto p-6 bg-surface shadow-sm rounded-lg mt-10 mb-10 border border-border">
         <div class="mb-6 flex justify-between items-center">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">Lebensmittel bearbeiten</h2>
-                <p class="text-sm text-gray-500 mt-1">ID: {{ foodId }}</p>
+                <h2 class="text-2xl font-bold text-content">Lebensmittel bearbeiten</h2>
+                <p class="text-sm text-content-muted mt-1">ID: {{ foodId }}</p>
             </div>
-            <BaseButton size="none" class="text-gray-500 hover:text-gray-700" @click="router.push('/foods')">
+            <BaseButton size="none" variant="ghost" @click="router.push('/foods')">
                 &larr; Zurück
             </BaseButton>
         </div>
 
-        <div v-if="isLoading" class="p-12 text-center text-gray-500">
+        <div v-if="isLoading" class="p-12 text-center text-content-muted">
             Daten werden geladen...
         </div>
 
         <FoodForm v-else-if="foodData" :initialData="foodData" @submit="handleUpdate" />
 
-        <div v-else class="p-12 text-center text-red-500">
+        <div v-else class="p-12 text-center text-danger">
             Lebensmittel konnte nicht geladen werden.
         </div>
     </div>

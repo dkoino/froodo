@@ -1,40 +1,40 @@
 <template>
-  <div class="max-w-2xl mx-auto p-6 bg-white shadow-sm rounded-lg mt-10 border border-gray-200">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Neuen Nutzer anlegen</h2>
+  <div class="max-w-2xl mx-auto p-6 bg-surface shadow-sm rounded-lg mt-10 border border-border">
+    <h2 class="text-2xl font-bold text-content mb-6">Neuen Nutzer anlegen</h2>
 
     <form @submit.prevent="submit" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+        <label class="block text-sm font-medium text-content-secondary mb-1">Name</label>
         <BaseInput v-model="form.name" required />
       </div>
       
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">E-Mail</label>
+        <label class="block text-sm font-medium text-content-secondary mb-1">E-Mail</label>
         <BaseInput v-model="form.email" type="email" required />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Passwort</label>
+        <label class="block text-sm font-medium text-content-secondary mb-1">Passwort</label>
         <BaseInput v-model="form.password" type="password" required />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Passwort bestätigen</label>
+        <label class="block text-sm font-medium text-content-secondary mb-1">Passwort bestätigen</label>
         <BaseInput v-model="form.password_confirmation" type="password" required />
       </div>
 
       <div class="flex items-center mt-4">
-        <input id="is_admin" v-model="form.is_admin" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-        <label for="is_admin" class="ml-2 block text-sm text-gray-900">
+        <input id="is_admin" v-model="form.is_admin" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary-border border-border-strong rounded">
+        <label for="is_admin" class="ml-2 block text-sm text-content-strong">
           Administrator Rechte
         </label>
       </div>
 
       <div class="pt-4 flex justify-end gap-3">
-        <BaseButton type="button" class="bg-gray-100 text-gray-700 border border-gray-300 shadow-sm" @click="router.push('/users')">
+        <BaseButton type="button" variant="neutral" @click="router.push('/users')">
           Abbrechen
         </BaseButton>
-        <BaseButton type="submit" class="bg-blue-600 text-white hover:bg-blue-700 border border-transparent shadow-sm">
+        <BaseButton type="submit" variant="primary">
           Speichern
         </BaseButton>
       </div>

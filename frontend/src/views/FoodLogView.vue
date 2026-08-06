@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mb-6 flex items-center justify-between">
-      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Heute</h1>
+      <h1 class="text-3xl font-extrabold text-content-strong tracking-tight">Heute</h1>
     </div>
 
     <DailyFoodLog 
@@ -19,17 +19,17 @@
 
 
     <!-- Add Modal -->
-    <div v-if="showAddModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col">
-        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-start bg-gray-50 sticky top-0 z-10">
+    <div v-if="showAddModal" class="fixed inset-0 bg-overlay flex items-center justify-center z-50 p-4">
+      <div class="bg-surface rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col">
+        <div class="px-6 py-4 border-b border-border flex justify-between items-start bg-surface-muted sticky top-0 z-10">
           <div>
-            <h3 class="text-xl font-bold text-gray-800">Lebensmittel hinzufügen</h3>
-            <div class="text-sm text-gray-500 mt-1 flex items-center">
+            <h3 class="text-xl font-bold text-content">Lebensmittel hinzufügen</h3>
+            <div class="text-sm text-content-muted mt-1 flex items-center">
               <span>für den</span>
-              <input type="date" v-model="selectedDateForAdd" :max="getTodayDateStr()" @click="($event.target as HTMLInputElement)?.showPicker()" @keydown.prevent class="ml-2 px-2 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md text-sm font-medium text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" />
+              <input type="date" v-model="selectedDateForAdd" :max="getTodayDateStr()" @click="($event.target as HTMLInputElement)?.showPicker()" @keydown.prevent class="ml-2 px-2 py-1 bg-surface-subtle hover:bg-surface-subtle border border-border-strong rounded-md text-sm font-medium text-content-secondary cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-border transition-colors" />
             </div>
           </div>
-          <button type="button" @click="showAddModal = false" class="text-2xl leading-none font-bold text-gray-400 hover:text-gray-600 transition-colors">
+          <button type="button" @click="showAddModal = false" class="text-2xl leading-none font-bold text-content-subtle hover:text-content-muted transition-colors">
             &times;
           </button>
         </div>
@@ -37,67 +37,67 @@
         <div class="p-6 overflow-y-auto">
           <form @submit.prevent="submitAddLog" class="space-y-6">
             <div>
-              <label class="block text-sm font-bold tracking-wider text-gray-700 uppercase mb-2">Lebensmittel suchen</label>
+              <label class="block text-sm font-bold tracking-wider text-content-secondary uppercase mb-2">Lebensmittel suchen</label>
               
               <div v-if="!addForm.food_id" class="relative">
-                <input v-model="searchQuery" type="text" class="block w-full px-4 py-3 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow" placeholder="Suche nach Name, Marke, Barcode..." />
+                <input v-model="searchQuery" type="text" class="block w-full px-4 py-3 bg-surface border border-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-primary-border focus:border-transparent transition-shadow" placeholder="Suche nach Name, Marke, Barcode..." />
                 
-                <div v-if="searchQuery && filteredAvailableFoods.length > 0" class="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto border border-gray-200 rounded-md shadow-lg bg-white">
-                  <div v-for="food in filteredAvailableFoods.slice(0, 20)" :key="food.id" @click="selectFood(food)" class="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors flex items-center space-x-3">
-                    <img v-if="getPrimaryPhoto(food)" :src="`http://localhost:8000/storage/${getPrimaryPhoto(food).file_path}`" class="w-10 h-10 object-cover rounded shadow-sm border border-gray-200 flex-shrink-0" />
-                    <div v-else class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-300 border border-gray-200 flex-shrink-0">
+                <div v-if="searchQuery && filteredAvailableFoods.length > 0" class="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto border border-border rounded-md shadow-lg bg-surface">
+                  <div v-for="food in filteredAvailableFoods.slice(0, 20)" :key="food.id" @click="selectFood(food)" class="px-4 py-3 hover:bg-primary-soft cursor-pointer border-b border-border-muted last:border-0 transition-colors flex items-center space-x-3">
+                    <img v-if="getPrimaryPhoto(food)" :src="`http://localhost:8000/storage/${getPrimaryPhoto(food).file_path}`" class="w-10 h-10 object-cover rounded shadow-sm border border-border flex-shrink-0" />
+                    <div v-else class="w-10 h-10 bg-surface-subtle rounded flex items-center justify-center text-content-faint border border-border flex-shrink-0">
                       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
                     <div>
-                      <div class="font-bold text-gray-800">{{ food.name }}</div>
-                      <div class="text-sm text-gray-500 mt-1">{{ food.variant ? food.variant + ' • ' : '' }}{{ food.brand ? food.brand.name : 'Keine Marke' }}</div>
+                      <div class="font-bold text-content">{{ food.name }}</div>
+                      <div class="text-sm text-content-muted mt-1">{{ food.variant ? food.variant + ' • ' : '' }}{{ food.brand ? food.brand.name : 'Keine Marke' }}</div>
                     </div>
                   </div>
                 </div>
-                <div v-else-if="searchQuery" class="mt-2 text-sm text-gray-500">
+                <div v-else-if="searchQuery" class="mt-2 text-sm text-content-muted">
                   Keine Treffer gefunden.
                 </div>
               </div>
 
-              <div v-else class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-md gap-4">
+              <div v-else class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-surface-muted border border-border rounded-md gap-4">
                 <div class="flex items-start space-x-4">
-                  <img v-if="getPrimaryPhoto(selectedFoodObj)" :src="`http://localhost:8000/storage/${getPrimaryPhoto(selectedFoodObj).file_path}`" class="w-14 h-14 object-cover rounded shadow-sm border border-gray-200 flex-shrink-0" />
-                  <div v-else class="w-14 h-14 bg-gray-100 rounded flex items-center justify-center text-gray-300 border border-gray-200 flex-shrink-0">
+                  <img v-if="getPrimaryPhoto(selectedFoodObj)" :src="`http://localhost:8000/storage/${getPrimaryPhoto(selectedFoodObj).file_path}`" class="w-14 h-14 object-cover rounded shadow-sm border border-border flex-shrink-0" />
+                  <div v-else class="w-14 h-14 bg-surface-subtle rounded flex items-center justify-center text-content-faint border border-border flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div>
-                    <div class="font-bold text-gray-800 text-lg">{{ selectedFoodObj?.name }}</div>
-                    <div class="text-sm text-gray-500 mt-1">{{ selectedFoodObj?.variant ? selectedFoodObj.variant + ' • ' : '' }}{{ selectedFoodObj?.brand?.name }}</div>
+                    <div class="font-bold text-content text-lg">{{ selectedFoodObj?.name }}</div>
+                    <div class="text-sm text-content-muted mt-1">{{ selectedFoodObj?.variant ? selectedFoodObj.variant + ' • ' : '' }}{{ selectedFoodObj?.brand?.name }}</div>
                   
-                  <div class="text-xs text-gray-600 mt-3 p-2 bg-white rounded border border-gray-200 shadow-sm inline-block">
-                    <div><span class="font-semibold text-gray-700">Gesamtmenge:</span> {{ Number(selectedFoodObj?.total_amount) }} {{ selectedFoodObj?.measurement_unit }}</div>
-                    <div v-if="selectedFoodObj?.portion_amount" class="mt-1"><span class="font-semibold text-gray-700">Portion ({{ selectedFoodObj.portion_label || 'Stück' }}):</span> {{ Number(selectedFoodObj.portion_amount) }} {{ selectedFoodObj.measurement_unit }}</div>
+                  <div class="text-xs text-content-muted mt-3 p-2 bg-surface rounded border border-border shadow-sm inline-block">
+                    <div><span class="font-semibold text-content-secondary">Gesamtmenge:</span> {{ Number(selectedFoodObj?.total_amount) }} {{ selectedFoodObj?.measurement_unit }}</div>
+                    <div v-if="selectedFoodObj?.portion_amount" class="mt-1"><span class="font-semibold text-content-secondary">Portion ({{ selectedFoodObj.portion_label || 'Stück' }}):</span> {{ Number(selectedFoodObj.portion_amount) }} {{ selectedFoodObj.measurement_unit }}</div>
                   </div>
                 </div>
                 </div>
-                <button type="button" @click="clearSelection" class="text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors px-3 py-1.5 border border-blue-200 bg-white hover:bg-blue-50 rounded-md">Auswahl ändern</button>
+                <button type="button" @click="clearSelection" class="text-primary hover:text-primary-strong text-sm font-semibold transition-colors px-3 py-1.5 border border-primary-soft-border bg-surface hover:bg-primary-soft rounded-md">Auswahl ändern</button>
               </div>
             </div>
 
             <div>
-              <label class="block text-sm font-bold tracking-wider text-gray-700 uppercase mb-2">Konsumierte Menge</label>
+              <label class="block text-sm font-bold tracking-wider text-content-secondary uppercase mb-2">Konsumierte Menge</label>
               <div class="relative">
-                <input v-model.number="addForm.amount" type="number" step="1" min="1" required class="block w-full px-4 py-3 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-gray-800 font-medium" placeholder="z.B. 100" />
+                <input v-model.number="addForm.amount" type="number" step="1" min="1" required class="block w-full px-4 py-3 bg-surface border border-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-primary-border focus:border-transparent transition-shadow text-content font-medium" placeholder="z.B. 100" />
                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                  <span class="text-gray-500 font-medium">{{ selectedFoodUnit || 'g/ml' }}</span>
+                  <span class="text-content-muted font-medium">{{ selectedFoodUnit || 'g/ml' }}</span>
                 </div>
               </div>
             </div>
 
-            <div class="pt-4 flex justify-end space-x-3 border-t border-gray-100 mt-6">
-              <button type="button" @click="showAddModal = false" class="px-5 py-2.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <div class="pt-4 flex justify-end space-x-3 border-t border-border-muted mt-6">
+              <button type="button" @click="showAddModal = false" class="px-5 py-2.5 border border-border-strong shadow-sm text-sm font-medium rounded-md text-content-secondary bg-surface hover:bg-surface-muted transition-colors">
                 Abbrechen
               </button>
-              <button type="submit" :disabled="saving" class="px-5 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50">
+              <button type="submit" :disabled="saving" class="px-5 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-on-primary bg-primary hover:bg-primary-hover transition-colors disabled:opacity-50">
                 {{ saving ? 'Speichere...' : 'Eintrag hinzufügen' }}
               </button>
             </div>

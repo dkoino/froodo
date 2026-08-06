@@ -1,17 +1,17 @@
 <template>
     <form @submit.prevent="submitForm" class="space-y-6">
-        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b border-gray-200 pb-2">Allgemein</h3>
+        <div class="bg-surface-muted p-5 rounded-md border border-border-muted">
+            <h3 class="text-lg font-semibold text-content-secondary mb-4 border-b border-border pb-2">Allgemein</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Links: Eingabefelder -->
                 <div class="space-y-3">
-                    <div class="space-y-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="space-y-2 p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <BaseInput v-model="form.name" required label="Produktname" placeholder="z. B. Sprite" />
                         <BaseInput v-model="form.variant" label="Variante" placeholder="z. B. Zero" />
                     </div>
 
-                    <div class="space-y-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="space-y-2 p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <AutocompleteInput
                             v-model="form.brand_name"
                             :items="filteredBrands"
@@ -20,13 +20,13 @@
                             @select="selectBrand"
                         >
                             <template #item="{ item }">
-                                {{ item.name }} <span v-if="item.manufacturer" class="text-xs text-gray-500">({{ item.manufacturer.name }})</span>
+                                {{ item.name }} <span v-if="item.manufacturer" class="text-xs text-content-muted">({{ item.manufacturer.name }})</span>
                             </template>
                             <template #feedback>
-                                <p v-if="exactBrandMatch" class="text-xs text-green-600 mt-1 flex items-center">
+                                <p v-if="exactBrandMatch" class="text-xs text-success mt-1 flex items-center">
                                     ✓ Marke vorhanden
                                 </p>
-                                <p v-else-if="form.brand_name" class="text-xs text-amber-600 mt-1 flex items-center">
+                                <p v-else-if="form.brand_name" class="text-xs text-warning mt-1 flex items-center">
                                     + Neue Marke wird angelegt
                                 </p>
                             </template>
@@ -44,10 +44,10 @@
                                 {{ item.name }}
                             </template>
                             <template #feedback>
-                                <p v-if="exactManufacturerMatch" class="text-xs text-green-600 mt-1 flex items-center">
+                                <p v-if="exactManufacturerMatch" class="text-xs text-success mt-1 flex items-center">
                                     ✓ Hersteller vorhanden
                                 </p>
-                                <p v-else-if="form.manufacturer_name && !exactBrandMatch" class="text-xs text-amber-600 mt-1 flex items-center">
+                                <p v-else-if="form.manufacturer_name && !exactBrandMatch" class="text-xs text-warning mt-1 flex items-center">
                                     + Neuer Hersteller wird angelegt
                                 </p>
                             </template>
@@ -68,13 +68,13 @@
             </div>
         </div>
 
-        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b border-gray-200 pb-2">Kategorisierung & Zutaten</h3>
+        <div class="bg-surface-muted p-5 rounded-md border border-border-muted">
+            <h3 class="text-lg font-semibold text-content-secondary mb-4 border-b border-border pb-2">Kategorisierung & Zutaten</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Links: Eingabefelder -->
                 <div class="space-y-3">
-                    <div class="space-y-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="space-y-2 p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <AutocompleteInput
                             v-model="form.main_category_name"
                             :items="filteredMainCategories"
@@ -92,7 +92,7 @@
                         />
                     </div>
 
-                    <div class="space-y-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="space-y-2 p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <BaseSelect v-model="form.meat_type" label="Fleischsorte">
                             <option value="Unbekannt">Unbekannt</option>
                             <option value="Schwein">Schwein</option>
@@ -123,20 +123,20 @@
             </div>
         </div>
 
-        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold mb-4 border-b border-gray-200 pb-2 text-gray-700">Menge & Portion</h3>
+        <div class="bg-surface-muted p-5 rounded-md border border-border-muted">
+            <h3 class="text-lg font-semibold mb-4 border-b border-border pb-2 text-content-secondary">Menge & Portion</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Links: Eingabefelder -->
                 <div class="space-y-3">
-                    <div class="grid grid-cols-2 gap-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="grid grid-cols-2 gap-2 p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <BaseInput v-model="form.total_amount" type="number" required label="Gesamtmenge" placeholder="z. B. 500" />
                         <BaseSelect v-model="form.measurement_unit" required label="Basis-Einheit">
                             <option value="g">Gramm (g)</option>
                             <option value="ml">Milliliter (ml)</option>
                         </BaseSelect>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="grid grid-cols-2 gap-2 p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <BaseInput v-model="form.portion_label" label="Portions-Label" placeholder="z. B. 1 Glas, 1 Riegel" />
                         <BaseInput v-model="form.portion_amount" type="number" step="1" :label="`Portions-Menge in ${form.measurement_unit}`" placeholder="z. B. 250" />
                     </div>
@@ -155,16 +155,16 @@
             </div>
         </div>
 
-        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b border-gray-200 pb-2">Nährwerte pro 100{{ form.measurement_unit }}</h3>
+        <div class="bg-surface-muted p-5 rounded-md border border-border-muted">
+            <h3 class="text-lg font-semibold text-content-secondary mb-4 border-b border-border pb-2">Nährwerte pro 100{{ form.measurement_unit }}</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Links: Eingabefelder (Viertelgröße) -->
                 <div class="space-y-3">
-                    <div class="grid grid-cols-2 gap-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="grid grid-cols-2 gap-2 p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <div class="col-span-2 sm:col-span-1">
                             <BaseInput v-model="form.calories_p100" type="number" required label="Kalorien (kcal)" />
-                            <p v-if="calorieDiscrepancy" class="text-[10px] text-amber-600 mt-1 leading-tight">
+                            <p v-if="calorieDiscrepancy" class="text-[10px] text-warning mt-1 leading-tight">
                                 ⚠️ Rechnerisch ca. {{ Math.round(calculatedCalories) }} kcal. Stimmen die Makros?
                             </p>
                         </div>
@@ -175,7 +175,7 @@
                         </div>
                         <div>
                             <BaseInput v-model="form.sat_fat_p100" type="number" step="0.1" label="davon gesättigt" />
-                            <p v-if="fatDiscrepancy" class="text-[10px] text-amber-600 mt-1 leading-tight">
+                            <p v-if="fatDiscrepancy" class="text-[10px] text-warning mt-1 leading-tight">
                                 ⚠️ Mehr gesättigt als Fett?
                             </p>
                         </div>
@@ -185,7 +185,7 @@
                         </div>
                         <div>
                             <BaseInput v-model="form.sugar_p100" type="number" step="0.1" label="davon Zucker" />
-                            <p v-if="sugarDiscrepancy" class="text-[10px] text-amber-600 mt-1 leading-tight">
+                            <p v-if="sugarDiscrepancy" class="text-[10px] text-warning mt-1 leading-tight">
                                 ⚠️ Mehr Zucker als Kohlenhydrate?
                             </p>
                         </div>
@@ -214,33 +214,33 @@
             </div>
         </div>
 
-        <div class="bg-gray-50 p-5 rounded-md border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b border-gray-200 pb-2">Zusätzliche Informationen</h3>
+        <div class="bg-surface-muted p-5 rounded-md border border-border-muted">
+            <h3 class="text-lg font-semibold text-content-secondary mb-4 border-b border-border pb-2">Zusätzliche Informationen</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Links: Eingabefelder -->
                 <div class="space-y-3">
-                    <div class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <BaseInput v-model="form.barcode" type="text" label="Barcode (EAN)" placeholder="z. B. 4000000000000" />
                         <p v-if="barcodeInfo" class="mt-2 text-xs font-medium" :class="{
-                            'text-green-600': barcodeInfo.type === 'success',
-                            'text-amber-600': barcodeInfo.type === 'warning',
-                            'text-red-600': barcodeInfo.type === 'error'
+                            'text-success': barcodeInfo.type === 'success',
+                            'text-warning': barcodeInfo.type === 'warning',
+                            'text-danger': barcodeInfo.type === 'error'
                         }">
                             {{ barcodeInfo.text }}
                         </p>
-                        <p v-if="barcodeExistsWarning" class="mt-2 text-xs font-bold text-red-600 bg-red-50 p-2 rounded border border-red-100">
+                        <p v-if="barcodeExistsWarning" class="mt-2 text-xs font-bold text-danger bg-danger-soft p-2 rounded border border-danger-soft-border">
                             {{ barcodeExistsWarning }}
                         </p>
                     </div>
                     
-                    <div class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <div class="grid grid-cols-2 gap-2">
                             <BaseInput v-model="form.price" type="number" step="0.01" label="Preis" placeholder="0.00" />
                         </div>
                     </div>
                     
-                    <div class="space-y-2 p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="space-y-2 p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <BaseSelect v-model="form.source_type" required label="Datenquelle">
                             <option value="Verpackung">Verpackung</option>
                             <option value="Herstellerseite">Herstellerseite</option>
@@ -250,16 +250,16 @@
                         <BaseInput v-model="form.source_url" type="url" label="Quellen-Link" placeholder="https://example.com" />
                     </div>
                     
-                    <div class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+                    <div class="p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                         <div class="flex flex-col xl:flex-row gap-4 items-start">
                             <div class="flex-1 w-full">
-                                <label class="block text-sm mb-1 font-normal text-gray-400">Notizen</label>
+                                <label class="block text-sm mb-1 font-normal text-content-subtle">Notizen</label>
                                 <textarea v-model="form.notes" rows="4"
-                                    class="block w-full border border-gray-300 rounded-md p-2.5 focus:ring-0 focus:border-gray-400 bg-white h-[104px]"></textarea>
+                                    class="block w-full border border-border-strong rounded-md p-2.5 focus:ring-0 focus:border-border-strong bg-surface h-[104px]"></textarea>
                             </div>
 
                             <div class="flex-shrink-0">
-                                <label class="block text-sm font-normal text-gray-400 mb-1 text-center">Weitere Fotos (Max. 3)</label>
+                                <label class="block text-sm font-normal text-content-subtle mb-1 text-center">Weitere Fotos (Max. 3)</label>
                                 <div class="flex gap-2 flex-wrap max-w-[200px] justify-center">
                                     <PhotoUploadSlot 
                                         v-for="(photo, index) in otherPhotos" 
@@ -296,7 +296,7 @@
         </div>
 
         <div class="pt-2">
-            <BaseButton type="submit" size="lg" class="w-full py-3 bg-gray-800 text-white shadow-sm rounded-md">
+            <BaseButton type="submit" size="lg" variant="inverted" class="w-full py-3 rounded-md">
                 {{ isEditMode ? 'Änderungen speichern' : 'Lebensmittel anlegen' }}
             </BaseButton>
         </div>
@@ -304,6 +304,8 @@
     </form>
 
     <!-- Cropper Modal -->
+    <!-- Intentionally not themed: the editor chrome stays dark in every theme so
+         the surrounding colours don't distort the image being cropped. -->
     <Teleport to="body">
         <div v-if="isCropModalOpen" class="fixed inset-0 z-50 bg-black/80 flex flex-col">
             <div class="flex justify-between items-center p-4 bg-gray-900 text-white">
@@ -320,7 +322,7 @@
                     :stencil-props="{ aspectRatio: 0 }"
                 />
             </div>
-            <div class="p-4 bg-gray-900 flex justify-between items-center space-x-4">
+            <div class="p-4 bg-gray-800 flex justify-between items-center space-x-4">
                 <!-- Feinjustierung (Halten zum Drehen) -->
                 <div class="flex items-center space-x-2">
                     <BaseButton 

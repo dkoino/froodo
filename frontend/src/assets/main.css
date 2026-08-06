@@ -1,1 +1,212 @@
 @import "tailwindcss";
+
+@theme inline {
+  /* Surfaces */
+  --color-page: var(--t-page);
+  --color-surface: var(--t-surface);
+  --color-surface-muted: var(--t-surface-muted);
+  --color-surface-subtle: var(--t-surface-subtle);
+  --color-surface-inverted: var(--t-surface-inverted);
+  --color-surface-inverted-hover: var(--t-surface-inverted-hover);
+  --color-header: var(--t-header);
+  --color-overlay: var(--t-overlay);
+
+  /* Lines */
+  --color-border: var(--t-border);
+  --color-border-muted: var(--t-border-muted);
+  --color-border-strong: var(--t-border-strong);
+
+  /* Text */
+  --color-content-strong: var(--t-content-strong);
+  --color-content: var(--t-content);
+  --color-content-secondary: var(--t-content-secondary);
+  --color-content-muted: var(--t-content-muted);
+  --color-content-subtle: var(--t-content-subtle);
+  --color-content-faint: var(--t-content-faint);
+  /* Text on --color-surface-inverted */
+  --color-on-inverted: var(--t-on-inverted);
+
+  /* Primary accent */
+  --color-primary: var(--t-primary);
+  --color-primary-hover: var(--t-primary-hover);
+  --color-primary-strong: var(--t-primary-strong);
+  --color-primary-light: var(--t-primary-light);
+  --color-primary-border: var(--t-primary-border);
+  --color-primary-soft: var(--t-primary-soft);
+  --color-primary-soft-strong: var(--t-primary-soft-strong);
+  --color-primary-soft-border: var(--t-primary-soft-border);
+  --color-on-primary: var(--t-on-primary);
+
+  /* Danger */
+  --color-danger: var(--t-danger);
+  --color-danger-hover: var(--t-danger-hover);
+  --color-danger-strong: var(--t-danger-strong);
+  --color-danger-soft: var(--t-danger-soft);
+  --color-danger-soft-hover: var(--t-danger-soft-hover);
+  --color-danger-soft-border: var(--t-danger-soft-border);
+  --color-on-danger: var(--t-on-danger);
+
+  /* Success */
+  --color-success: var(--t-success);
+  --color-success-strong: var(--t-success-strong);
+  --color-success-soft: var(--t-success-soft);
+  --color-success-soft-strong: var(--t-success-soft-strong);
+  --color-success-soft-border: var(--t-success-soft-border);
+
+  /* Warning */
+  --color-warning: var(--t-warning);
+  --color-on-warning: var(--t-on-warning);
+
+  /* Nutrient categories — these carry domain meaning, not just decoration */
+  --color-nutrient-energy-bg: var(--t-nutrient-energy-bg);
+  --color-nutrient-energy-text: var(--t-nutrient-energy-text);
+  --color-nutrient-fat-bg: var(--t-nutrient-fat-bg);
+  --color-nutrient-fat-bg-soft: var(--t-nutrient-fat-bg-soft);
+  --color-nutrient-fat-text: var(--t-nutrient-fat-text);
+  --color-nutrient-fat-text-soft: var(--t-nutrient-fat-text-soft);
+  --color-nutrient-carbs-bg: var(--t-nutrient-carbs-bg);
+  --color-nutrient-carbs-bg-soft: var(--t-nutrient-carbs-bg-soft);
+  --color-nutrient-carbs-text: var(--t-nutrient-carbs-text);
+  --color-nutrient-carbs-text-soft: var(--t-nutrient-carbs-text-soft);
+  --color-nutrient-protein-bg: var(--t-nutrient-protein-bg);
+  --color-nutrient-protein-text: var(--t-nutrient-protein-text);
+}
+
+/* Light theme (default) */
+:root,
+[data-theme="light"] {
+  --t-page: var(--color-gray-100);
+  --t-surface: var(--color-white);
+  --t-surface-muted: var(--color-gray-50);
+  --t-surface-subtle: var(--color-gray-100);
+  --t-surface-inverted: var(--color-gray-800);
+  --t-surface-inverted-hover: var(--color-gray-700);
+  --t-header: var(--color-white);
+  --t-overlay: --alpha(var(--color-black) / 50%);
+
+  --t-border: var(--color-gray-200);
+  --t-border-muted: var(--color-gray-100);
+  --t-border-strong: var(--color-gray-300);
+
+  --t-content-strong: var(--color-gray-900);
+  --t-content: var(--color-gray-800);
+  --t-content-secondary: var(--color-gray-700);
+  --t-content-muted: var(--color-gray-500);
+  --t-content-subtle: var(--color-gray-400);
+  --t-content-faint: var(--color-gray-300);
+  --t-on-inverted: var(--color-white);
+
+  --t-primary: var(--color-blue-600);
+  --t-primary-hover: var(--color-blue-700);
+  --t-primary-strong: var(--color-blue-800);
+  --t-primary-light: var(--color-blue-400);
+  --t-primary-border: var(--color-blue-500);
+  --t-primary-soft: var(--color-blue-50);
+  --t-primary-soft-strong: var(--color-blue-100);
+  --t-primary-soft-border: var(--color-blue-200);
+  --t-on-primary: var(--color-white);
+
+  --t-danger: var(--color-red-600);
+  --t-danger-hover: var(--color-red-700);
+  --t-danger-strong: var(--color-red-800);
+  --t-danger-soft: var(--color-red-50);
+  --t-danger-soft-hover: var(--color-red-100);
+  --t-danger-soft-border: var(--color-red-200);
+  --t-on-danger: var(--color-white);
+
+  --t-success: var(--color-green-600);
+  --t-success-strong: var(--color-green-800);
+  --t-success-soft: var(--color-green-50);
+  --t-success-soft-strong: var(--color-green-100);
+  --t-success-soft-border: var(--color-green-200);
+
+  --t-warning: var(--color-amber-600);
+  --t-on-warning: var(--color-white);
+
+  --t-nutrient-energy-bg: var(--color-blue-50);
+  --t-nutrient-energy-text: var(--color-blue-900);
+  --t-nutrient-fat-bg: var(--color-amber-100);
+  --t-nutrient-fat-bg-soft: var(--color-amber-50);
+  --t-nutrient-fat-text: var(--color-amber-900);
+  --t-nutrient-fat-text-soft: var(--color-amber-700);
+  --t-nutrient-carbs-bg: var(--color-purple-100);
+  --t-nutrient-carbs-bg-soft: var(--color-purple-50);
+  --t-nutrient-carbs-text: var(--color-purple-900);
+  --t-nutrient-carbs-text-soft: var(--color-purple-700);
+  --t-nutrient-protein-bg: var(--color-green-50);
+  --t-nutrient-protein-text: var(--color-green-900);
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --t-page: var(--color-gray-950);
+  --t-surface: var(--color-gray-900);
+  --t-surface-muted: var(--color-gray-800);
+  --t-surface-subtle: var(--color-gray-800);
+  --t-surface-inverted: var(--color-gray-700);
+  --t-surface-inverted-hover: var(--color-gray-600);
+  --t-header: var(--color-gray-900);
+  --t-overlay: --alpha(var(--color-black) / 70%);
+
+  --t-border: var(--color-gray-700);
+  --t-border-muted: var(--color-gray-800);
+  --t-border-strong: var(--color-gray-600);
+
+  --t-content-strong: var(--color-gray-50);
+  --t-content: var(--color-gray-100);
+  --t-content-secondary: var(--color-gray-200);
+  --t-content-muted: var(--color-gray-400);
+  --t-content-subtle: var(--color-gray-500);
+  --t-content-faint: var(--color-gray-600);
+  --t-on-inverted: var(--color-gray-50);
+
+  --t-primary: var(--color-blue-500);
+  --t-primary-hover: var(--color-blue-400);
+  --t-primary-strong: var(--color-blue-300);
+  --t-primary-light: var(--color-blue-300);
+  --t-primary-border: var(--color-blue-400);
+  --t-primary-soft: var(--color-blue-950);
+  --t-primary-soft-strong: var(--color-blue-900);
+  --t-primary-soft-border: var(--color-blue-800);
+  --t-on-primary: var(--color-white);
+
+  --t-danger: var(--color-red-400);
+  --t-danger-hover: var(--color-red-300);
+  --t-danger-strong: var(--color-red-300);
+  --t-danger-soft: var(--color-red-950);
+  --t-danger-soft-hover: var(--color-red-900);
+  --t-danger-soft-border: var(--color-red-800);
+  --t-on-danger: var(--color-white);
+
+  --t-success: var(--color-green-400);
+  --t-success-strong: var(--color-green-300);
+  --t-success-soft: var(--color-green-950);
+  --t-success-soft-strong: var(--color-green-900);
+  --t-success-soft-border: var(--color-green-800);
+
+  --t-warning: var(--color-amber-400);
+  --t-on-warning: var(--color-gray-900);
+
+  --t-nutrient-energy-bg: var(--color-blue-950);
+  --t-nutrient-energy-text: var(--color-blue-200);
+  --t-nutrient-fat-bg: var(--color-amber-900);
+  --t-nutrient-fat-bg-soft: var(--color-amber-950);
+  --t-nutrient-fat-text: var(--color-amber-100);
+  --t-nutrient-fat-text-soft: var(--color-amber-300);
+  --t-nutrient-carbs-bg: var(--color-purple-900);
+  --t-nutrient-carbs-bg-soft: var(--color-purple-950);
+  --t-nutrient-carbs-text: var(--color-purple-100);
+  --t-nutrient-carbs-text-soft: var(--color-purple-300);
+  --t-nutrient-protein-bg: var(--color-green-950);
+  --t-nutrient-protein-text: var(--color-green-200);
+}
+
+/* Set on the document so unstyled areas (browser overscroll) follow the theme too. */
+html {
+  background-color: var(--t-page);
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}

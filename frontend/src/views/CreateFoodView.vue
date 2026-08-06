@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-4xl mx-auto p-6 bg-white shadow-sm rounded-lg mt-10 mb-10 border border-gray-200">
+  <div class="max-w-4xl mx-auto p-6 bg-surface shadow-sm rounded-lg mt-10 mb-10 border border-border">
     <div class="mb-6">
-      <h2 class="text-2xl font-bold text-gray-800">Neues Lebensmittel anlegen</h2>
-      <p class="text-sm text-gray-500 mt-1">Füge ein neues Produkt zur Datenbank hinzu.</p>
+      <h2 class="text-2xl font-bold text-content">Neues Lebensmittel anlegen</h2>
+      <p class="text-sm text-content-muted mt-1">Füge ein neues Produkt zur Datenbank hinzu.</p>
     </div>
 
     <FoodForm @submit="handleCreate" />

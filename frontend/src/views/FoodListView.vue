@@ -1,7 +1,7 @@
 <template>
-  <div class="max-w-6xl mx-auto p-6 bg-white shadow-sm rounded-lg mt-10 mb-10 border border-gray-200">
+  <div class="max-w-6xl mx-auto p-6 bg-surface shadow-sm rounded-lg mt-10 mb-10 border border-border">
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-      <h2 class="text-2xl font-bold text-gray-800">Gespeicherte Lebensmittel</h2>
+      <h2 class="text-2xl font-bold text-content">Gespeicherte Lebensmittel</h2>
       <div class="w-full md:w-80">
         <BaseInput 
           v-model="searchQuery" 
@@ -13,19 +13,19 @@
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse table-fixed">
         <thead>
-          <tr class="border-b border-gray-200 text-sm font-semibold text-gray-600 bg-gray-50">
+          <tr class="border-b border-border text-sm font-semibold text-content-muted bg-surface-muted">
             <th class="p-2.5 w-24">Bild</th>
             <th class="p-2.5 w-1/2">Name</th>
             <th class="p-2.5 w-1/4 pl-8">Brand</th>
             <th class="p-2.5 w-1/4 text-right pr-6">Menge</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100 text-base text-gray-700">
-          <tr v-for="food in paginatedFoods" :key="food.id" @click="openDetailModal(food)" class="bg-white even:bg-gray-50 hover:bg-gray-100 transition duration-75 group cursor-pointer">
+        <tbody class="divide-y divide-border-muted text-base text-content-secondary">
+          <tr v-for="food in paginatedFoods" :key="food.id" @click="openDetailModal(food)" class="bg-surface even:bg-surface-muted hover:bg-surface-subtle transition duration-75 group cursor-pointer">
             
             <td class="p-2.5">
               <div 
-                class="w-14 h-14 bg-gray-100 rounded border border-gray-200 overflow-hidden flex items-center justify-center relative cursor-pointer"
+                class="w-14 h-14 bg-surface-subtle rounded border border-border overflow-hidden flex items-center justify-center relative cursor-pointer"
                 @mousemove="getPrimaryImage(food) ? updateMousePos($event) : null"
                 @mouseenter="getPrimaryImage(food) ? setHoveredImage(getPrimaryImage(food)) : null"
                 @mouseleave="clearHoveredImage"
@@ -36,15 +36,15 @@
                   alt="Produktbild"
                   class="w-full h-full object-cover"
                 >
-                <svg v-else class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg v-else class="w-6 h-6 text-content-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
             </td>
             
             <td class="p-2.5 overflow-hidden">
-              <div class="font-semibold text-gray-900 text-lg truncate" :title="food.name">{{ food.name }}</div>
-              <div v-if="food.variant" class="text-sm text-gray-500 mt-0.5 truncate" :title="food.variant">{{ food.variant }}</div>
+              <div class="font-semibold text-content-strong text-lg truncate" :title="food.name">{{ food.name }}</div>
+              <div v-if="food.variant" class="text-sm text-content-muted mt-0.5 truncate" :title="food.variant">{{ food.variant }}</div>
             </td>
             
             <td class="p-2.5 pl-8 overflow-hidden">
@@ -53,17 +53,17 @@
                   v-if="food.brand.logo_path" 
                   :src="`http://localhost:8000/storage/${food.brand.logo_path}`" 
                   alt="Logo"
-                  class="w-8 h-8 flex-shrink-0 object-contain rounded bg-white border border-gray-200 p-0.5"
+                  class="w-8 h-8 flex-shrink-0 object-contain rounded bg-surface border border-border p-0.5"
                 >
-                <div v-else class="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-gray-100 text-gray-400 rounded border border-gray-200 text-xs font-bold uppercase">
+                <div v-else class="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-surface-subtle text-content-subtle rounded border border-border text-xs font-bold uppercase">
                   {{ food.brand.name.charAt(0) }}
                 </div>
-                <span class="text-gray-700 font-medium truncate">{{ food.brand.name }}</span>
+                <span class="text-content-secondary font-medium truncate">{{ food.brand.name }}</span>
               </div>
-              <span v-else class="text-gray-400">-</span>
+              <span v-else class="text-content-subtle">-</span>
             </td>
             
-            <td class="p-2.5 font-medium text-gray-800 text-right pr-6">
+            <td class="p-2.5 font-medium text-content text-right pr-6">
               {{ Number(food.total_amount) }} {{ food.measurement_unit }}
             </td>
 
@@ -71,21 +71,21 @@
         </tbody>
       </table>
 
-      <div v-if="filteredFoods.length === 0" class="p-12 text-center text-gray-500 border-t border-gray-100">
+      <div v-if="filteredFoods.length === 0" class="p-12 text-center text-content-muted border-t border-border-muted">
         Keine Lebensmittel gefunden.
       </div>
     </div>
 
-    <div class="flex flex-col sm:flex-row justify-between items-center mt-4 text-sm text-gray-600 gap-4" v-if="filteredFoods.length > 0">
+    <div class="flex flex-col sm:flex-row justify-between items-center mt-4 text-sm text-content-muted gap-4" v-if="filteredFoods.length > 0">
       <div>
         Zeige {{ (currentPage - 1) * itemsPerPage + 1 }} bis {{ Math.min(currentPage * itemsPerPage, filteredFoods.length) }} von {{ filteredFoods.length }} Einträgen
       </div>
       <div class="flex items-center space-x-2">
-        <BaseButton class="bg-white text-gray-700 border border-gray-300 shadow-sm rounded-md" :disabled="currentPage === 1" @click="currentPage--">
+        <BaseButton variant="secondary" class="rounded-md" :disabled="currentPage === 1" @click="currentPage--">
           Zurück
         </BaseButton>
         
-        <BaseButton class="bg-white text-gray-700 border border-gray-300 shadow-sm rounded-md" :disabled="currentPage === totalPages" @click="currentPage++">
+        <BaseButton variant="secondary" class="rounded-md" :disabled="currentPage === totalPages" @click="currentPage++">
           Weiter
         </BaseButton>
       </div>
@@ -103,7 +103,7 @@
     <Teleport to="body">
       <div 
         v-if="hoveredImageSrc" 
-        class="fixed z-50 pointer-events-none transform -translate-x-1/2 translate-y-4 bg-white rounded-lg shadow-2xl border-4 border-white overflow-hidden transition-opacity duration-150"
+        class="fixed z-50 pointer-events-none transform -translate-x-1/2 translate-y-4 bg-surface rounded-lg shadow-2xl border-4 border-surface overflow-hidden transition-opacity duration-150"
         :style="{ left: mouseX + 'px', top: mouseY + 'px' }"
       >
         <img :src="hoveredImageSrc" class="w-64 h-64 object-contain" />

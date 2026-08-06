@@ -1,12 +1,12 @@
 <template>
     <div class="max-w-4xl mx-auto p-6 mt-10">
         <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800">Import / Export</h2>
-            <p class="text-sm text-gray-500 mt-1">Datenverwaltung</p>
+            <h2 class="text-2xl font-bold text-content">Import / Export</h2>
+            <p class="text-sm text-content-muted mt-1">Datenverwaltung</p>
         </div>
 
         <div v-if="notification"
-            :class="`mb-6 p-4 rounded-md border ${notification.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`">
+            :class="`mb-6 p-4 rounded-md border ${notification.type === 'success' ? 'bg-success-soft border-success-soft-border text-success-strong' : 'bg-danger-soft border-danger-soft-border text-danger-strong'}`">
             <div class="flex items-center">
                 <svg v-if="notification.type === 'success'" class="w-5 h-5 mr-2" fill="currentColor"
                     viewBox="0 0 20 20">
@@ -24,11 +24,11 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Daten-Export</h3>
-                <p class="text-sm text-gray-500 mb-6">Lade die komplette Lebensmittel-Datenbank als CSV-Datei herunter,
+            <div class="bg-surface p-6 rounded-lg border border-border shadow-sm">
+                <h3 class="text-lg font-semibold text-content mb-2">Daten-Export</h3>
+                <p class="text-sm text-content-muted mb-6">Lade die komplette Lebensmittel-Datenbank als CSV-Datei herunter,
                     um sie in Excel zu bearbeiten oder ein Backup zu erstellen.</p>
-                <BaseButton size="lg" class="w-full bg-gray-100 text-gray-800 border border-gray-300 rounded-md" @click="handleExport">
+                <BaseButton size="lg" variant="neutral" class="w-full rounded-md" @click="handleExport">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -37,15 +37,15 @@
                 </BaseButton>
             </div>
 
-            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Daten-Import</h3>
-                <p class="text-sm text-gray-500 mb-6">Lade eine bearbeitete CSV-Datei hoch. Bestehende IDs werden
+            <div class="bg-surface p-6 rounded-lg border border-border shadow-sm">
+                <h3 class="text-lg font-semibold text-content mb-2">Daten-Import</h3>
+                <p class="text-sm text-content-muted mb-6">Lade eine bearbeitete CSV-Datei hoch. Bestehende IDs werden
                     geupdatet, neue Einträge (ohne ID) werden hinzugefügt.</p>
 
                 <form @submit.prevent="handleImport">
                     <input type="file" accept=".csv" @change="onFileSelect" required
-                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-4 cursor-pointer">
-                    <BaseButton type="submit" size="lg" class="w-full bg-gray-800 text-white shadow-sm rounded-md" :disabled="isUploading">
+                        class="block w-full text-sm text-content-muted file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary-soft file:text-primary-hover hover:file:bg-primary-soft-strong mb-4 cursor-pointer">
+                    <BaseButton type="submit" size="lg" variant="inverted" class="w-full rounded-md" :disabled="isUploading">
                         <span v-if="isUploading">Wird importiert...</span>
                         <span v-else class="flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
