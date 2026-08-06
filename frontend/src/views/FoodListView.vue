@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-6xl mx-auto p-6 bg-surface shadow-sm rounded-lg mt-10 mb-10 border border-border">
+  <div class="max-w-4xl mx-auto p-6 bg-surface shadow-sm rounded-lg mt-10 mb-10 border border-border">
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
       <h2 class="text-2xl font-bold text-content">Gespeicherte Lebensmittel</h2>
       <div class="w-full md:w-80">
@@ -14,10 +14,10 @@
       <table class="w-full text-left border-collapse table-fixed">
         <thead>
           <tr class="border-b border-border text-sm font-semibold text-content-muted bg-surface-muted">
-            <th class="p-2.5 w-24">Bild</th>
-            <th class="p-2.5 w-1/2">Name</th>
-            <th class="p-2.5 w-1/4 pl-8">Brand</th>
-            <th class="p-2.5 w-1/4 text-right pr-6">Menge</th>
+            <th class="p-2.5 w-20">Bild</th>
+            <th class="p-2.5 w-2/5">Name</th>
+            <th class="p-2.5 pl-3 w-1/4">Brand</th>
+            <th class="p-2.5 pr-3 w-1/5 text-right">Menge</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border-muted text-base text-content-secondary">
@@ -47,7 +47,7 @@
               <div v-if="food.variant" class="text-sm text-content-muted mt-0.5 truncate" :title="food.variant">{{ food.variant }}</div>
             </td>
             
-            <td class="p-2.5 pl-8 overflow-hidden">
+            <td class="p-2.5 pl-3 overflow-hidden">
               <div v-if="food.brand" class="flex items-center space-x-3" :title="food.brand.name">
                 <img 
                   v-if="food.brand.logo_path" 
@@ -63,8 +63,8 @@
               <span v-else class="text-content-subtle">-</span>
             </td>
             
-            <td class="p-2.5 font-medium text-content text-right pr-6">
-              {{ Number(food.total_amount) }} {{ food.measurement_unit }}
+            <td class="p-2.5 pr-3 font-medium text-content text-right">
+              {{ Number(food.total_amount) }}{{ food.measurement_unit }}
             </td>
 
           </tr>
