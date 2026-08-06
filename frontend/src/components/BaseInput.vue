@@ -8,6 +8,7 @@
             {{ label }}
         </label>
         <input
+            ref="inputRef"
             :value="modelValue"
             @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
             v-bind="$attrs"
@@ -18,6 +19,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+
 defineOptions({
   inheritAttrs: false
 });
@@ -32,4 +35,15 @@ defineProps<{
 defineEmits<{
     (e: 'update:modelValue', value: string): void
 }>();
+
+const inputRef = ref<HTMLInputElement | null>(null);
+
+defineExpose({
+    focusEnd: () => {
+        const el = inputRef.value;
+        if (!el) return;
+        el.focus();
+        el.setSelectionRange(el.value.length, el.value.length);
+    }
+});
 </script>

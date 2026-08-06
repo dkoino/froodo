@@ -31,8 +31,8 @@
               <div v-if="displayFood.brand" class="p-3 bg-surface border border-border-muted rounded-lg shadow-sm text-sm">
                 <span class="block text-content-subtle text-xs font-medium uppercase">Marke & Hersteller</span>
                 <span class="text-content font-semibold">
-                  <span class="cursor-pointer hover:text-primary transition-colors" @click="emitSearch('Marke', displayFood.brand.name)">{{ displayFood.brand.name }}</span>
-                  <span v-if="displayFood.brand?.manufacturer" class="text-content-muted font-normal"> &gt; <span class="cursor-pointer hover:text-primary transition-colors" @click="emitSearch('Hersteller', displayFood.brand.manufacturer.name)">{{ displayFood.brand.manufacturer.name }}</span></span>
+                  <span class="cursor-pointer hover:text-primary transition-colors" @click="emitSearch('marke', displayFood.brand.name)">{{ displayFood.brand.name }}</span>
+                  <span v-if="displayFood.brand?.manufacturer" class="text-content-muted font-normal"> &gt; <span class="cursor-pointer hover:text-primary transition-colors" @click="emitSearch('marke', displayFood.brand.manufacturer.name)">{{ displayFood.brand.manufacturer.name }}</span></span>
                 </span>
               </div>
             </div>
@@ -59,18 +59,18 @@
               <div v-if="displayFood.main_category" class="p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                 <span class="block text-content-subtle text-xs font-medium uppercase">Kategorie</span>
                 <span class="text-content font-semibold">
-                  <span class="cursor-pointer hover:text-primary transition-colors" @click="emitSearch('Kategorie', displayFood.main_category.name)">{{ displayFood.main_category.name }}</span>
-                  <span v-if="displayFood.sub_category" class="text-content-muted font-normal"> &gt; <span class="cursor-pointer hover:text-primary transition-colors" @click="emitSearch('Kategorie', displayFood.sub_category.name)">{{ displayFood.sub_category.name }}</span></span>
+                  <span class="cursor-pointer hover:text-primary transition-colors" @click="emitSearch('kategorie', displayFood.main_category.name)">{{ displayFood.main_category.name }}</span>
+                  <span v-if="displayFood.sub_category" class="text-content-muted font-normal"> &gt; <span class="cursor-pointer hover:text-primary transition-colors" @click="emitSearch('kategorie', displayFood.sub_category.name)">{{ displayFood.sub_category.name }}</span></span>
                 </span>
               </div>
               <div v-if="displayFood.state || (displayFood.meat_type && displayFood.meat_type !== 'Unbekannt')" class="p-3 bg-surface border border-border-muted rounded-lg shadow-sm space-y-2">
                 <div v-if="displayFood.meat_type && displayFood.meat_type !== 'Unbekannt'">
                   <span class="block text-content-subtle text-xs font-medium uppercase">Fleischsorte</span>
-                  <span class="text-content font-semibold cursor-pointer hover:text-primary transition-colors" @click="emitSearch('Fleisch', displayFood.meat_type)">{{ displayFood.meat_type }}</span>
+                  <span class="text-content font-semibold cursor-pointer hover:text-primary transition-colors" @click="emitSearch('fleischsorte', displayFood.meat_type)">{{ displayFood.meat_type }}</span>
                 </div>
                 <div v-if="displayFood.state">
                   <span class="block text-content-subtle text-xs font-medium uppercase">Zustand</span>
-                  <span class="text-content font-semibold cursor-pointer hover:text-primary transition-colors" @click="emitSearch('Zustand', displayFood.state)">{{ displayFood.state }}</span>
+                  <span class="text-content font-semibold cursor-pointer hover:text-primary transition-colors" @click="emitSearch('zustand', displayFood.state)">{{ displayFood.state }}</span>
                 </div>
               </div>
             </div>
@@ -184,7 +184,7 @@
             <div class="space-y-3 text-sm flex-1">
               <div v-if="displayFood.barcode" class="p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
                 <span class="block text-content-subtle text-xs font-medium uppercase">Barcode (EAN)</span>
-                <span class="text-content font-semibold cursor-pointer hover:text-primary transition-colors" @click="emitSearch('Barcode', displayFood.barcode)">{{ displayFood.barcode }}</span>
+                <span class="text-content font-semibold cursor-pointer hover:text-primary transition-colors" @click="emitSearch('barcode', displayFood.barcode)">{{ displayFood.barcode }}</span>
               </div>
               
               <div v-if="displayFood.price" class="p-3 bg-surface border border-border-muted rounded-lg shadow-sm">
@@ -242,14 +242,14 @@
           </div>
           <div>
             Angelegt von
-            <span class="cursor-pointer hover:text-content-muted transition-colors" @click="emitSearch('Nutzer', displayFood.creator.name)">
+            <span class="cursor-pointer hover:text-content-muted transition-colors" @click="emitSearch('nutzer', displayFood.creator.name)">
               {{ displayFood.creator.name }}
             </span>
             am {{ formatDate(displayFood.created_at) }}
           </div>
           <div v-if="displayFood.updated_at && displayFood.updater">
             Zuletzt geändert von
-            <span class="cursor-pointer hover:text-content-muted transition-colors" @click="emitSearch('Nutzer', displayFood.updater.name)">
+            <span class="cursor-pointer hover:text-content-muted transition-colors" @click="emitSearch('nutzer', displayFood.updater.name)">
               {{ displayFood.updater.name }}
             </span>
             am {{ formatDate(displayFood.updated_at) }}
@@ -348,9 +348,9 @@ watch(() => props.isOpen, async (newVal) => {
   }
 })
 
-const emitSearch = (prefix: string, value: any) => {
+const emitSearch = (field: string, value: any) => {
   if (!value || value === '-') return
-  emit('search', `${prefix}:${value}`)
+  emit('search', { field, term: String(value) })
 }
 
 const handleDelete = () => {

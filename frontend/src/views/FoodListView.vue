@@ -2,11 +2,24 @@
   <div class="max-w-4xl mx-auto p-6 bg-surface shadow-sm rounded-lg mt-10 mb-10 border border-border">
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
       <h2 class="text-2xl font-bold text-content">Gespeicherte Lebensmittel</h2>
-      <div class="w-full md:w-80">
-        <BaseInput 
-          v-model="searchQuery" 
-          placeholder="Suchen nach Namen, Marke, Barcode..." 
-        />
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <div class="w-36">
+          <BaseSelect v-model="searchScope">
+            <option value="alle">Alle Felder</option>
+            <option value="name">Name</option>
+            <option value="marke">Marke</option>
+            <option value="kategorie">Kategorie</option>
+            <option value="barcode">Barcode</option>
+            <option value="fleischsorte">Fleischsorte</option>
+          </BaseSelect>
+        </div>
+        <div class="w-full md:w-72">
+          <BaseInput
+            ref="searchInputRef"
+            v-model="searchQuery"
+            placeholder="Suchbegriff..."
+          />
+        </div>
       </div>
     </div>
 
@@ -113,10 +126,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import FoodDetailModal from '../components/FoodDetailModal.vue'
 import BaseButton from '../components/BaseButton.vue'
 import BaseInput from '../components/BaseInput.vue'
+import BaseSelect from '../components/BaseSelect.vue'
 
 const foods = ref<any[]>([])
 const selectedFood = ref<any>(null)
@@ -140,8 +154,64 @@ const updateMousePos = (e: MouseEvent) => {
 }
 
 const searchQuery = ref('')
+const searchInputRef = ref<InstanceType<typeof BaseInput> | null>(null)
 const itemsPerPage = 10
 const currentPage = ref(1)
+
+// Persistenter Feld-Filter, unabhängig vom Text im Suchfeld. Wer lieber
+// "Marke: Chio" direkt eintippt, kann das weiterhin tun (siehe FIELD_ALIASES) —
+// beide Wege laufen über dieselben FIELD_MATCHERS, damit sie nie voneinander abweichen.
+const searchScope = ref('alle')
+
+watch(searchScope, () => {
+  nextTick(() => searchInputRef.value?.focusEnd())
+})
+
+const FIELD_MATCHERS: Record<string, (food: any, term: string) => boolean> = {
+  name: (food, term) =>
+    (food.name || '').toLowerCase().includes(term) ||
+    (food.variant || '').toLowerCase().includes(term),
+  marke: (food, term) =>
+    (food.brand?.name || '').toLowerCase().includes(term) ||
+    (food.brand?.manufacturer?.name || '').toLowerCase().includes(term),
+  kategorie: (food, term) =>
+    (food.main_category?.name || '').toLowerCase().includes(term) ||
+    (food.sub_category?.name || '').toLowerCase().includes(term),
+  barcode: (food, term) => (food.barcode || '').toLowerCase().includes(term),
+  fleischsorte: (food, term) => (food.meat_type || '').toLowerCase().includes(term),
+  zustand: (food, term) => (food.state || '').toLowerCase().includes(term),
+  notiz: (food, term) => (food.notes || '').toLowerCase().includes(term),
+  nutzer: (food, term) => (food.creator?.name || '').toLowerCase().includes(term),
+}
+
+// Synonyme, die beim manuellen Eintippen von "prefix:begriff" erkannt werden.
+// zustand/notiz/nutzer stehen bewusst nicht im Dropdown, funktionieren aber
+// weiterhin per Texteingabe und über die Klick-Links im FoodDetailModal.
+const FIELD_ALIASES: Record<string, string> = {
+  name: 'name',
+  marke: 'marke', brand: 'marke', hersteller: 'marke',
+  kategorie: 'kategorie', category: 'kategorie',
+  barcode: 'barcode', ean: 'barcode',
+  fleisch: 'fleischsorte', fleischsorte: 'fleischsorte', meat: 'fleischsorte',
+  zustand: 'zustand', state: 'zustand',
+  notiz: 'notiz', notizen: 'notiz', notes: 'notiz',
+  nutzer: 'nutzer', user: 'nutzer',
+}
+
+const matchAnyField = (list: any[], query: string) =>
+  list.filter(food => (
+    (food.name || '').toLowerCase().includes(query) ||
+    (food.variant || '').toLowerCase().includes(query) ||
+    (food.barcode || '').toLowerCase().includes(query) ||
+    (food.meat_type || '').toLowerCase().includes(query) ||
+    (food.state || '').toLowerCase().includes(query) ||
+    (food.notes || '').toLowerCase().includes(query) ||
+    (food.brand?.name || '').toLowerCase().includes(query) ||
+    (food.brand?.manufacturer?.name || '').toLowerCase().includes(query) ||
+    (food.main_category?.name || '').toLowerCase().includes(query) ||
+    (food.sub_category?.name || '').toLowerCase().includes(query) ||
+    (food.creator?.name || '').toLowerCase().includes(query)
+  ))
 
 const filteredFoods = computed(() => {
   const rawQuery = searchQuery.value.trim()
@@ -151,62 +221,23 @@ const filteredFoods = computed(() => {
   const prefixMatch = query.match(/^([a-zäöüß]+):(.*)/i)
 
   if (prefixMatch) {
-    const prefix = prefixMatch[1].trim()
-    const searchTerm = prefixMatch[2].trim()
-
-    if (searchTerm) {
-      let isKnownPrefix = true
-      const filtered = foods.value.filter(food => {
-        if (['name'].includes(prefix)) {
-          return (food.name || '').toLowerCase().includes(searchTerm) ||
-                 (food.variant || '').toLowerCase().includes(searchTerm)
-        }
-        if (['marke', 'brand', 'hersteller'].includes(prefix)) {
-          return (food.brand?.name || '').toLowerCase().includes(searchTerm) ||
-                 (food.brand?.manufacturer?.name || '').toLowerCase().includes(searchTerm)
-        }
-        if (['kategorie', 'category'].includes(prefix)) {
-          return (food.main_category?.name || '').toLowerCase().includes(searchTerm) ||
-                 (food.sub_category?.name || '').toLowerCase().includes(searchTerm)
-        }
-        if (['barcode', 'ean'].includes(prefix)) {
-          return (food.barcode || '').toLowerCase().includes(searchTerm)
-        }
-        if (['fleisch', 'meat'].includes(prefix)) {
-          return (food.meat_type || '').toLowerCase().includes(searchTerm)
-        }
-        if (['zustand', 'state'].includes(prefix)) {
-          return (food.state || '').toLowerCase().includes(searchTerm)
-        }
-        if (['notiz', 'notizen', 'notes'].includes(prefix)) {
-          return (food.notes || '').toLowerCase().includes(searchTerm)
-        }
-        if (['nutzer', 'user'].includes(prefix)) {
-          return (food.creator?.name || '').toLowerCase().includes(searchTerm)
-        }
-        isKnownPrefix = false
-        return false
-      })
-
-      if (isKnownPrefix) return filtered
+    const field = FIELD_ALIASES[(prefixMatch[1] ?? '').trim()]
+    const term = (prefixMatch[2] ?? '').trim()
+    const matcher = field ? FIELD_MATCHERS[field] : undefined
+    if (matcher && term) {
+      return foods.value.filter(food => matcher(food, term))
     }
+    // Unbekannter Prefix oder nichts nach dem Doppelpunkt: wie gewohnt als
+    // reiner Substring über alle Felder suchen, Doppelpunkt inklusive.
+    return matchAnyField(foods.value, query)
   }
 
-  return foods.value.filter(food => {
-    return (
-      (food.name || '').toLowerCase().includes(query) ||
-      (food.variant || '').toLowerCase().includes(query) ||
-      (food.barcode || '').toLowerCase().includes(query) ||
-      (food.meat_type || '').toLowerCase().includes(query) ||
-      (food.state || '').toLowerCase().includes(query) ||
-      (food.notes || '').toLowerCase().includes(query) ||
-      (food.brand?.name || '').toLowerCase().includes(query) ||
-      (food.brand?.manufacturer?.name || '').toLowerCase().includes(query) ||
-      (food.main_category?.name || '').toLowerCase().includes(query) ||
-      (food.sub_category?.name || '').toLowerCase().includes(query) ||
-      (food.creator?.name || '').toLowerCase().includes(query)
-    )
-  })
+  const scopeMatcher = searchScope.value !== 'alle' ? FIELD_MATCHERS[searchScope.value] : undefined
+  if (scopeMatcher) {
+    return foods.value.filter(food => scopeMatcher(food, query))
+  }
+
+  return matchAnyField(foods.value, query)
 })
 
 const totalPages = computed(() => Math.ceil(filteredFoods.value.length / itemsPerPage) || 1)
@@ -275,8 +306,9 @@ const deleteFood = async (id: number) => {
   }
 }
 
-const handleSearch = (query: string) => {
-  searchQuery.value = query
+const handleSearch = (payload: { field: string; term: string }) => {
+  searchScope.value = payload.field
+  searchQuery.value = payload.term
   isDetailModalOpen.value = false
 }
 
