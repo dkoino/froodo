@@ -40,8 +40,13 @@
               <label class="block text-sm font-bold tracking-wider text-content-secondary uppercase mb-2">Lebensmittel suchen</label>
               
               <div v-if="!addForm.food_id" class="relative">
-                <input v-model="searchQuery" type="text" class="block w-full px-4 py-3 bg-surface border border-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-primary-border focus:border-transparent transition-shadow" placeholder="Suche nach Name, Marke, Barcode..." />
-                
+                <div class="flex gap-3 mb-2">
+                  <select v-model="searchScope" class="px-3 py-3 bg-surface border border-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-primary-border focus:border-transparent transition-shadow text-content-secondary">
+                    <option v-for="opt in FOOD_SEARCH_FIELDS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                  </select>
+                  <input ref="searchInputEl" v-model="searchQuery" type="text" class="block w-full px-4 py-3 bg-surface border border-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-primary-border focus:border-transparent transition-shadow" placeholder="Suche nach Name, Marke, Barcode..." />
+                </div>
+
                 <div v-if="searchQuery && filteredAvailableFoods.length > 0" class="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto border border-border rounded-md shadow-lg bg-surface">
                   <div v-for="food in filteredAvailableFoods.slice(0, 20)" :key="food.id" @click="selectFood(food)" class="px-4 py-3 hover:bg-primary-soft cursor-pointer border-b border-border-muted last:border-0 transition-colors flex items-center space-x-3">
                     <img v-if="getPrimaryPhoto(food)" :src="`http://localhost:8000/storage/${getPrimaryPhoto(food).file_path}`" class="w-10 h-10 object-cover rounded shadow-sm border border-border flex-shrink-0" />
@@ -72,21 +77,31 @@
                   <div>
                     <div class="font-bold text-content text-lg">{{ selectedFoodObj?.name }}</div>
                     <div class="text-sm text-content-muted mt-1">{{ selectedFoodObj?.variant ? selectedFoodObj.variant + ' • ' : '' }}{{ selectedFoodObj?.brand?.name }}</div>
-                  
-                  <div class="text-xs text-content-muted mt-3 p-2 bg-surface rounded border border-border shadow-sm inline-block">
-                    <div><span class="font-semibold text-content-secondary">Gesamtmenge:</span> {{ Number(selectedFoodObj?.total_amount) }} {{ selectedFoodObj?.measurement_unit }}</div>
-                    <div v-if="selectedFoodObj?.portion_amount" class="mt-1"><span class="font-semibold text-content-secondary">Portion ({{ selectedFoodObj.portion_label || 'Stück' }}):</span> {{ Number(selectedFoodObj.portion_amount) }} {{ selectedFoodObj.measurement_unit }}</div>
                   </div>
                 </div>
-                </div>
                 <button type="button" @click="clearSelection" class="text-primary hover:text-primary-strong text-sm font-semibold transition-colors px-3 py-1.5 border border-primary-soft-border bg-surface hover:bg-primary-soft rounded-md">Auswahl ändern</button>
+              </div>
+
+              <div v-if="addForm.food_id" class="flex gap-2 mt-2">
+                <button type="button" @click="fillAmountFromTotal" class="flex-1 px-3 py-1.5 text-xs font-semibold rounded-md border border-border-strong bg-surface hover:bg-primary-soft hover:border-primary-soft-border hover:text-primary text-content-secondary transition-colors">
+                  Gesamtmenge: {{ Number(selectedFoodObj?.total_amount) }} {{ selectedFoodObj?.measurement_unit }}
+                </button>
+                <button v-if="selectedFoodObj?.portion_amount" type="button" @click="fillAmountFromPortion" class="flex-1 px-3 py-1.5 text-xs font-semibold rounded-md border border-border-strong bg-surface hover:bg-primary-soft hover:border-primary-soft-border hover:text-primary text-content-secondary transition-colors">
+                  + {{ selectedFoodObj.portion_label || 'Portion' }}: {{ Number(selectedFoodObj.portion_amount) }} {{ selectedFoodObj.measurement_unit }}
+                </button>
               </div>
             </div>
 
             <div>
               <label class="block text-sm font-bold tracking-wider text-content-secondary uppercase mb-2">Konsumierte Menge</label>
               <div class="relative">
-                <input v-model.number="addForm.amount" type="number" step="1" min="1" required class="block w-full px-4 py-3 bg-surface border border-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-primary-border focus:border-transparent transition-shadow text-content font-medium" placeholder="z.B. 100" />
+                <input
+                  v-model.number="addForm.amount"
+                  type="number" step="1" min="1" required
+                  :class="amountFlash ? 'bg-primary-soft border-primary-border' : 'bg-surface border-border-strong'"
+                  class="block w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-border focus:border-transparent transition-colors duration-500 text-content font-medium"
+                  placeholder="z.B. 100"
+                />
                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                   <span class="text-content-muted font-medium">{{ selectedFoodUnit || 'g/ml' }}</span>
                 </div>
@@ -109,9 +124,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import DailyFoodLog from '@/components/DailyFoodLog.vue'
+import { useFoodFieldSearch, FOOD_SEARCH_FIELDS } from '@/composables/useFoodFieldSearch'
 
 const route = useRoute()
 const router = useRouter()
@@ -149,26 +165,45 @@ const addForm = ref({
   consumed_at: ''
 })
 
-const searchQuery = ref('')
+const searchInputEl = ref<HTMLInputElement | null>(null)
+const { searchScope, searchQuery, filtered: filteredAvailableFoods } = useFoodFieldSearch(availableFoods)
 
-const filteredAvailableFoods = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase()
-  if (!query) return availableFoods.value
-  
-  return availableFoods.value.filter(food => {
-    return (
-      (food.name || '').toLowerCase().includes(query) ||
-      (food.variant || '').toLowerCase().includes(query) ||
-      (food.barcode || '').toLowerCase().includes(query) ||
-      (food.brand?.name || '').toLowerCase().includes(query)
-    )
-  })
+watch(searchScope, () => {
+  nextTick(() => searchInputEl.value?.focus())
 })
 
 const selectedFoodObj = computed(() => {
   if (!addForm.value.food_id) return null
   return availableFoods.value.find(f => f.id === addForm.value.food_id)
 })
+
+// Kurzes Aufleuchten des Mengenfelds, damit sichtbar wird, dass sich der Wert
+// geändert hat. Bei erneutem Klick vor Ablauf wird der Timer neu gestartet.
+const amountFlash = ref(false)
+let amountFlashTimeout: ReturnType<typeof setTimeout> | null = null
+
+const triggerAmountFlash = () => {
+  if (amountFlashTimeout) clearTimeout(amountFlashTimeout)
+  amountFlash.value = true
+  amountFlashTimeout = setTimeout(() => {
+    amountFlash.value = false
+  }, 500)
+}
+
+const fillAmountFromTotal = () => {
+  if (selectedFoodObj.value) {
+    addForm.value.amount = Number(selectedFoodObj.value.total_amount)
+    triggerAmountFlash()
+  }
+}
+
+const fillAmountFromPortion = () => {
+  if (selectedFoodObj.value?.portion_amount) {
+    const portion = Number(selectedFoodObj.value.portion_amount)
+    addForm.value.amount = (addForm.value.amount || 0) + portion
+    triggerAmountFlash()
+  }
+}
 
 const selectFood = (food: any) => {
   addForm.value.food_id = food.id
