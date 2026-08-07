@@ -4,280 +4,59 @@
       <h1 class="text-3xl font-extrabold text-content-strong tracking-tight">Heute</h1>
     </div>
 
-    <DailyFoodLog 
-      :logs="logs" 
-      :loading="loading" 
+    <DailyFoodLog
+      :logs="logs"
+      :loading="loading"
       empty-message="Heute wurde noch nichts eingetragen."
       :date="getTodayDateStr()"
-      @update-log="handleUpdateLog"
-      @delete-log="handleDeleteLog"
       @add-log="openAddModal"
+      @edit-log="openEditModal"
     />
 
-
-
-
-
-    <!-- Add Modal -->
-    <div v-if="showAddModal" class="fixed inset-0 bg-overlay flex items-center justify-center z-50 p-4">
-      <div class="bg-surface rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col">
-        <div class="px-6 py-4 border-b border-border flex justify-between items-start bg-surface-muted sticky top-0 z-10">
-          <div>
-            <h3 class="text-xl font-bold text-content">Lebensmittel hinzufügen</h3>
-            <div class="text-sm text-content-muted mt-1 flex items-center">
-              <span>für den</span>
-              <input type="date" v-model="selectedDateForAdd" :max="getTodayDateStr()" @click="($event.target as HTMLInputElement)?.showPicker()" @keydown.prevent class="ml-2 px-2 py-1 bg-surface-subtle hover:bg-surface-subtle border border-border-strong rounded-md text-sm font-medium text-content-secondary cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-border transition-colors" />
-            </div>
-          </div>
-          <button type="button" @click="showAddModal = false" class="text-2xl leading-none font-bold text-content-subtle hover:text-content-muted transition-colors">
-            &times;
-          </button>
-        </div>
-        
-        <div class="p-6 overflow-y-auto">
-          <form @submit.prevent="submitAddLog" class="space-y-6">
-            <div>
-              <label class="block text-sm font-bold tracking-wider text-content-secondary uppercase mb-2">Lebensmittel suchen</label>
-              
-              <div v-if="!addForm.food_id" class="relative">
-                <div class="flex gap-3 mb-2">
-                  <select v-model="searchScope" class="px-3 py-3 bg-surface border border-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-primary-border focus:border-transparent transition-shadow text-content-secondary">
-                    <option v-for="opt in FOOD_SEARCH_FIELDS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-                  </select>
-                  <input ref="searchInputEl" v-model="searchQuery" type="text" class="block w-full px-4 py-3 bg-surface border border-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-primary-border focus:border-transparent transition-shadow" placeholder="Suche nach Name, Marke, Barcode..." />
-                </div>
-
-                <div v-if="searchQuery && filteredAvailableFoods.length > 0" class="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto border border-border rounded-md shadow-lg bg-surface">
-                  <div v-for="food in filteredAvailableFoods.slice(0, 20)" :key="food.id" @click="selectFood(food)" class="px-4 py-3 hover:bg-primary-soft cursor-pointer border-b border-border-muted last:border-0 transition-colors flex items-center space-x-3">
-                    <img v-if="getPrimaryPhoto(food)" :src="`http://localhost:8000/storage/${getPrimaryPhoto(food).file_path}`" class="w-10 h-10 object-cover rounded shadow-sm border border-border flex-shrink-0" />
-                    <div v-else class="w-10 h-10 bg-surface-subtle rounded flex items-center justify-center text-content-faint border border-border flex-shrink-0">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="font-bold text-content">{{ food.name }}</div>
-                      <div class="text-sm text-content-muted mt-1">{{ food.variant ? food.variant + ' • ' : '' }}{{ food.brand ? food.brand.name : 'Keine Marke' }}</div>
-                    </div>
-                  </div>
-                </div>
-                <div v-else-if="searchQuery" class="mt-2 text-sm text-content-muted">
-                  Keine Treffer gefunden.
-                </div>
-              </div>
-
-              <div v-else class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-surface-muted border border-border rounded-md gap-4">
-                <div class="flex items-start space-x-4">
-                  <img v-if="getPrimaryPhoto(selectedFoodObj)" :src="`http://localhost:8000/storage/${getPrimaryPhoto(selectedFoodObj).file_path}`" class="w-14 h-14 object-cover rounded shadow-sm border border-border flex-shrink-0" />
-                  <div v-else class="w-14 h-14 bg-surface-subtle rounded flex items-center justify-center text-content-faint border border-border flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="font-bold text-content text-lg">{{ selectedFoodObj?.name }}</div>
-                    <div class="text-sm text-content-muted mt-1">{{ selectedFoodObj?.variant ? selectedFoodObj.variant + ' • ' : '' }}{{ selectedFoodObj?.brand?.name }}</div>
-                  </div>
-                </div>
-                <button type="button" @click="clearSelection" class="text-primary hover:text-primary-strong text-sm font-semibold transition-colors px-3 py-1.5 border border-primary-soft-border bg-surface hover:bg-primary-soft rounded-md">Auswahl ändern</button>
-              </div>
-
-              <div v-if="addForm.food_id" class="flex gap-2 mt-2">
-                <button type="button" @click="fillAmountFromTotal" class="flex-1 px-3 py-1.5 text-xs font-semibold rounded-md border border-border-strong bg-surface hover:bg-primary-soft hover:border-primary-soft-border hover:text-primary text-content-secondary transition-colors">
-                  Gesamtmenge: {{ Number(selectedFoodObj?.total_amount) }} {{ selectedFoodObj?.measurement_unit }}
-                </button>
-                <button v-if="selectedFoodObj?.portion_amount" type="button" @click="fillAmountFromPortion" class="flex-1 px-3 py-1.5 text-xs font-semibold rounded-md border border-border-strong bg-surface hover:bg-primary-soft hover:border-primary-soft-border hover:text-primary text-content-secondary transition-colors">
-                  + {{ selectedFoodObj.portion_label || 'Portion' }}: {{ Number(selectedFoodObj.portion_amount) }} {{ selectedFoodObj.measurement_unit }}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-bold tracking-wider text-content-secondary uppercase mb-2">Konsumierte Menge</label>
-              <div class="relative">
-                <input
-                  v-model.number="addForm.amount"
-                  type="number" step="1" min="1" required
-                  :class="amountFlash ? 'bg-primary-soft border-primary-border' : 'bg-surface border-border-strong'"
-                  class="block w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-border focus:border-transparent transition-colors duration-500 text-content font-medium"
-                  placeholder="z.B. 100"
-                />
-                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                  <span class="text-content-muted font-medium">{{ selectedFoodUnit || 'g/ml' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="pt-4 flex justify-end space-x-3 border-t border-border-muted mt-6">
-              <button type="button" @click="showAddModal = false" class="px-5 py-2.5 border border-border-strong shadow-sm text-sm font-medium rounded-md text-content-secondary bg-surface hover:bg-surface-muted transition-colors">
-                Abbrechen
-              </button>
-              <button type="submit" :disabled="saving" class="px-5 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-on-primary bg-primary hover:bg-primary-hover transition-colors disabled:opacity-50">
-                {{ saving ? 'Speichere...' : 'Eintrag hinzufügen' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+    <FoodLogEntryModal
+      :is-open="modalOpen"
+      :date="modalDate"
+      :editing-log="editingLog"
+      :preset-food-id="presetFoodId"
+      @close="modalOpen = false"
+      @saved="fetchLogs"
+      @deleted="fetchLogs"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, nextTick } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import DailyFoodLog from '@/components/DailyFoodLog.vue'
-import { useFoodFieldSearch, FOOD_SEARCH_FIELDS } from '@/composables/useFoodFieldSearch'
+import FoodLogEntryModal from '@/components/FoodLogEntryModal.vue'
 
 const route = useRoute()
 const router = useRouter()
 
 const logs = ref<any[]>([])
-const availableFoods = ref<any[]>([])
 const loading = ref(true)
-const showAddModal = ref(false)
-const saving = ref(false)
-const selectedDateForAdd = ref<string | null>(null)
+
+const modalOpen = ref(false)
+const modalDate = ref<string | null>(null)
+const editingLog = ref<any | null>(null)
+const presetFoodId = ref<string | number | null>(null)
 
 const getTodayDateStr = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-const getPrimaryPhoto = (food: any) => {
-  if (!food || !food.photos || !Array.isArray(food.photos) || food.photos.length === 0) {
-    return null
-  }
-  return food.photos.find((p: any) => p.type === 'packaging') 
-    || food.photos.find((p: any) => p.type === 'content')
-    || food.photos.find((p: any) => p.type === 'other') 
-    || food.photos[0]
-}
-
 const openAddModal = (dateStr: string) => {
-  selectedDateForAdd.value = dateStr || getTodayDateStr()
-  showAddModal.value = true
+  editingLog.value = null
+  presetFoodId.value = null
+  modalDate.value = dateStr || getTodayDateStr()
+  modalOpen.value = true
 }
 
-const addForm = ref({
-  food_id: '' as string | number,
-  amount: null as number | null,
-  consumed_at: ''
-})
-
-const searchInputEl = ref<HTMLInputElement | null>(null)
-const { searchScope, searchQuery, filtered: filteredAvailableFoods } = useFoodFieldSearch(availableFoods)
-
-watch(searchScope, () => {
-  nextTick(() => searchInputEl.value?.focus())
-})
-
-const selectedFoodObj = computed(() => {
-  if (!addForm.value.food_id) return null
-  return availableFoods.value.find(f => f.id === addForm.value.food_id)
-})
-
-// Kurzes Aufleuchten des Mengenfelds, damit sichtbar wird, dass sich der Wert
-// geändert hat. Bei erneutem Klick vor Ablauf wird der Timer neu gestartet.
-const amountFlash = ref(false)
-let amountFlashTimeout: ReturnType<typeof setTimeout> | null = null
-
-const triggerAmountFlash = () => {
-  if (amountFlashTimeout) clearTimeout(amountFlashTimeout)
-  amountFlash.value = true
-  amountFlashTimeout = setTimeout(() => {
-    amountFlash.value = false
-  }, 500)
-}
-
-const fillAmountFromTotal = () => {
-  if (selectedFoodObj.value) {
-    addForm.value.amount = Number(selectedFoodObj.value.total_amount)
-    triggerAmountFlash()
-  }
-}
-
-const fillAmountFromPortion = () => {
-  if (selectedFoodObj.value?.portion_amount) {
-    const portion = Number(selectedFoodObj.value.portion_amount)
-    addForm.value.amount = (addForm.value.amount || 0) + portion
-    triggerAmountFlash()
-  }
-}
-
-const selectFood = (food: any) => {
-  addForm.value.food_id = food.id
-  searchQuery.value = ''
-}
-
-const clearSelection = () => {
-  addForm.value.food_id = ''
-  addForm.value.amount = null
-}
-
-const selectedFoodUnit = computed(() => {
-  return selectedFoodObj.value ? selectedFoodObj.value.measurement_unit : ''
-})
-
-const fetchAvailableFoods = async () => {
-  try {
-    const response = await fetch('http://localhost:8000/api/foods', {
-      credentials: 'include'
-    })
-    if (response.ok) {
-      const data = await response.json()
-      availableFoods.value = data.data || data // Handles paginated or raw data
-    }
-  } catch (error) {
-    console.error('Fehler beim Laden der Lebensmittel:', error)
-  }
-}
-
-const submitAddLog = async () => {
-  if (!addForm.value.food_id) {
-    alert('Bitte wähle zuerst ein Lebensmittel aus.')
-    return
-  }
-
-  if (!selectedDateForAdd.value) {
-    alert('Bitte wähle ein Datum aus.')
-    return
-  }
-  
-  saving.value = true
-  try {
-    // Set the selected date before sending
-    const payload = {
-      ...addForm.value,
-      consumed_at: selectedDateForAdd.value
-    }
-
-    const response = await fetch('http://localhost:8000/api/food-logs', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
-
-    if (response.ok) {
-      showAddModal.value = false
-      addForm.value = { food_id: '', amount: null, consumed_at: '' } // reset form
-      searchQuery.value = ''
-      
-      // Refresh all to keep it simple and ensure order is correct
-      fetchLogs()
-    } else {
-      alert('Fehler beim Speichern des Eintrags.')
-    }
-  } catch (error) {
-    console.error(error)
-    alert('Fehler beim Speichern.')
-  } finally {
-    saving.value = false
-  }
+const openEditModal = (log: any) => {
+  editingLog.value = log
+  modalOpen.value = true
 }
 
 const fetchLogs = async () => {
@@ -298,31 +77,13 @@ const fetchLogs = async () => {
   }
 }
 
-
-
-const handleUpdateLog = (payload: { id: number, amount: number }) => {
-  const log = logs.value.find(l => l.id === payload.id)
-  if (log) {
-    log.amount = payload.amount
-  }
-}
-
-const handleDeleteLog = (id: number) => {
-  logs.value = logs.value.filter(log => log.id !== id)
-}
-
-
-
-
-
-onMounted(async () => {
+onMounted(() => {
   fetchLogs()
-  await fetchAvailableFoods()
 
   const foodId = route.query.addFood
   if (foodId) {
+    presetFoodId.value = Number(foodId)
     openAddModal(getTodayDateStr())
-    addForm.value.food_id = Number(foodId)
     router.replace({ query: {} })
   }
 })
